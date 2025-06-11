@@ -5,6 +5,7 @@
       <element id="module-output" name="JavaMultiTool" />
       <element id="extracted-dir" path="$PROJECT_DIR$/res/sqlite-jdbc-3.49.1.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/res/svgSalamander-1.1.4.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/res" />
     </root>
   </artifact>
 </component>
