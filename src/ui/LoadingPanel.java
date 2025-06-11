@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Objects;
 import javax.imageio.ImageIO;
 
 public class LoadingPanel extends JPanel {
@@ -19,7 +20,7 @@ public class LoadingPanel extends JPanel {
 
         try {
             try {
-                BufferedImage original = ImageIO.read(new File("res/icons/menu/loading.png"));
+                BufferedImage original = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/icons/menu/loading.png")));
                 int targetWidth = 100;
                 int targetHeight = 100;
 

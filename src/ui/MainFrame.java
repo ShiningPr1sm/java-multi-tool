@@ -147,7 +147,7 @@ public class MainFrame extends JFrame {
 
         JButton achievementsBtn = new JButton();
         try {
-            ImageIcon icon = new ImageIcon("res/icons/menu/achievements_icon.png");
+            ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/menu/achievements_icon.png")));
             Image scaled = icon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
             achievementsBtn.setIcon(new ImageIcon(scaled));
         } catch (Exception e) {
@@ -166,7 +166,7 @@ public class MainFrame extends JFrame {
 
         JButton settingsBtn = new JButton();
         try {
-            ImageIcon icon = new ImageIcon("res/icons/menu/settings_icon.png");
+            ImageIcon icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/menu/settings_icon.png")));
             Image scaled = icon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
             settingsBtn.setIcon(new ImageIcon(scaled));
         } catch (Exception e) {

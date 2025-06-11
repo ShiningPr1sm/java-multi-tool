@@ -4,10 +4,12 @@ import db.AchievementDB;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class AchievementsPanel extends JPanel {
     public AchievementsPanel(String login) {
@@ -59,7 +61,7 @@ public class AchievementsPanel extends JPanel {
                         progressVal = rs.getInt("progress");
                     }
 
-                    String iconPath = "res/icons/achievements/" + code + ".png";
+                    String iconPath = "/icons/achievements/" + code + ".png";
 
                     // добавляем подпись уровня, если уровней больше одного
                     String displayTitle = title;
@@ -117,12 +119,12 @@ public class AchievementsPanel extends JPanel {
         icon.setHorizontalAlignment(SwingConstants.CENTER);
         icon.setVerticalAlignment(SwingConstants.CENTER);
 
-        ImageIcon imageIcon;
-        if (new java.io.File(iconPath).exists()) {
-            imageIcon = new ImageIcon(iconPath);
-        } else {
-            imageIcon = new ImageIcon("res/icons/achievements/no_achievement.png");
-        }
+        ImageIcon imageIcon = new ImageIcon(
+                Objects.requireNonNullElseGet(
+                        getClass().getResource(iconPath),
+                        () -> getClass().getResource("/icons/achievements/no_achievement.png")
+                )
+        );
         Image scaled = imageIcon.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
         icon.setIcon(new ImageIcon(scaled));
 
