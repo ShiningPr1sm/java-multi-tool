@@ -15,7 +15,7 @@ public class BDaysDB {
     public static void initializeDatabase() {
         String sql = """
             CREATE TABLE IF NOT EXISTS birthdays (
-              id         INTEGER PRIMARY KEY AUTOINCREMENT,
+              id         INTEGER PRIMARY KEY,
               name       TEXT    NOT NULL,
               bday_date  TEXT    NOT NULL  -- храним в ISO-формате, например 2004-05-02
             );
@@ -58,4 +58,15 @@ public class BDaysDB {
             e.printStackTrace();
         }
     }
+
+    public static void updateBirthday(int id, String name, LocalDate date) throws SQLException {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(
+                "UPDATE birthdays SET name = ?, bday_date = ? WHERE id = ?")) {
+            ps.setString(1, name);
+            ps.setString(2, date.toString());
+            ps.setInt(3, id);
+            ps.executeUpdate();
+        }
+    }
+
 }

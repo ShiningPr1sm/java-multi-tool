@@ -98,8 +98,26 @@ public class BDaysNotifierPanel extends JPanel {
 
         // Table setup
         model = new DefaultTableModel(new String[]{"ID", "Name", "Birthday"}, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column != 0; // только ID нельзя редактировать
+            }
         };
+        model.addTableModelListener(e -> {
+            if (e.getType() == javax.swing.event.TableModelEvent.UPDATE) {
+                int row = e.getFirstRow();
+                int id = (int) model.getValueAt(row, 0);
+                String name = model.getValueAt(row, 1).toString();
+                String dateStr = model.getValueAt(row, 2).toString();
+                try {
+                    LocalDate date = LocalDate.parse(dateStr, DISPLAY_FORMAT);
+                    BDaysDB.updateBirthday(id, name, date); // создаёшь этот метод
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid date format", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         table = new JTable(model);
         table.setFillsViewportHeight(true);
         table.setBackground(new Color(25, 25, 25));
@@ -208,7 +226,7 @@ public class BDaysNotifierPanel extends JPanel {
         String mode = (String) modeSelector.getSelectedItem();
         boolean upcoming = "Upcoming".equals(mode);
 
-        Map<String, Map<Integer, List<String>>> grouping = new LinkedHashMap<>();
+        Map<String, Map<Integer, List<Object[]>>> grouping = new LinkedHashMap<>();
         String[] seasons = {"Spring", "Summer", "Autumn", "Winter"};
         for (String s : seasons) grouping.put(s, new LinkedHashMap<>());
 
@@ -219,7 +237,6 @@ public class BDaysNotifierPanel extends JPanel {
                 LocalDate candidate = bd.withYear(today.getYear());
                 boolean expired = upcoming && candidate.isBefore(today);
 
-                // Determine season
                 int m = candidate.getMonthValue();
                 String season;
                 if (m >= 3 && m <= 5) season = "Spring";
@@ -229,7 +246,7 @@ public class BDaysNotifierPanel extends JPanel {
 
                 grouping.get(season)
                         .computeIfAbsent(m, k -> new ArrayList<>())
-                        .add(name + " — " + candidate.format(DISPLAY_FORMAT) + "::" + expired);
+                        .add(new Object[]{name, bd, candidate, expired});
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -239,35 +256,45 @@ public class BDaysNotifierPanel extends JPanel {
             var months = grouping.get(season);
             if (months.isEmpty()) continue;
 
-            JLabel sl = new JLabel("    " + season);
-            sl.setForeground(new Color(100, 200, 100));
+            Color seasonColor = switch (season) {
+                case "Winter" -> new Color(64, 224, 208);
+                case "Spring" -> new Color(100, 200, 100);
+                case "Summer" -> new Color(255, 215, 0);
+                case "Autumn" -> new Color(255, 140, 0);
+                default -> Color.WHITE;
+            };
+
+            JLabel sl = new JLabel("   " + season);
+            sl.setForeground(seasonColor);
             sl.setFont(sl.getFont().deriveFont(Font.BOLD, 16f));
             overviewContainer.add(sl);
 
             List<Integer> mks = new ArrayList<>(months.keySet());
             Collections.sort(mks);
+
             for (int mk : mks) {
                 String mn = Month.of(mk).getDisplayName(TextStyle.FULL, Locale.getDefault()).toUpperCase();
-                JLabel ml = new JLabel("     " + mn);
-                ml.setForeground(new Color(100, 200, 100));
+                JLabel ml = new JLabel("      " + mn);
+                ml.setForeground(seasonColor);
                 ml.setFont(ml.getFont().deriveFont(Font.BOLD, 14f));
                 overviewContainer.add(ml);
 
-                List<String> entries = new ArrayList<>(months.get(mk));
-                entries.sort(Comparator.comparing(s -> {
-                    String datePart = s.split("::")[0].split(" — ")[1].trim();
-                    return LocalDate.parse(datePart, DISPLAY_FORMAT);
-                }));
+                List<Object[]> entries = new ArrayList<>(months.get(mk));
+                entries.sort(Comparator.comparing(o -> (LocalDate) o[2])); // sort by candidate
                 if ("Reverse List".equals(mode)) Collections.reverse(entries);
 
-                for (String raw : entries) {
-                    String[] parts = raw.split("::");
-                    JLabel lbl = new JLabel("      " + parts[0]);
-                    if (upcoming && Boolean.parseBoolean(parts[1])) {
-                        lbl.setForeground(Color.GRAY);
-                    } else {
-                        lbl.setForeground(Color.WHITE);
-                    }
+                for (Object[] entry : entries) {
+                    String name = (String) entry[0];
+                    LocalDate originalBD = (LocalDate) entry[1];
+                    LocalDate candidate = (LocalDate) entry[2];
+                    boolean expired = (boolean) entry[3];
+
+                    int age = originalBD.until(today).getYears();
+                    String ageText = expired ? "(already " + age + " y.o.)" : "(will be " + age + " y.o.)";
+
+                    JLabel lbl = new JLabel("     — " + name + " — " + candidate.format(DISPLAY_FORMAT) + " " + ageText);
+                    lbl.setFont(lbl.getFont().deriveFont(15f));
+                    lbl.setForeground(upcoming && expired ? Color.GRAY : Color.WHITE);
                     overviewContainer.add(lbl);
                 }
             }
@@ -276,6 +303,7 @@ public class BDaysNotifierPanel extends JPanel {
         overviewContainer.revalidate();
         overviewContainer.repaint();
     }
+
 
     private void styleTabButton(JComponent comp) {
         comp.setOpaque(true);
