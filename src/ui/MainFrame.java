@@ -276,7 +276,7 @@ public class MainFrame extends JFrame {
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
 
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(createExpandableSection("Photo & Video editing", new String[]{"Remove Background", "Upscale", "Photo-Sorter"}));
+        sidebar.add(createExpandableSection("Photo & Video", new String[]{"Photo-Sorter", "Media Downloader", "Remove Background", "Upscale"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         sidebar.add(createExpandableSection("Math", new String[]{"Calculator", "Unit Converter"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
