@@ -3,7 +3,7 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/src/db/AchievementDB.java" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/src/db/DB.java" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/src/ui/SettingsPanel.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/ui/settings/SettingsPanel.java" dialect="GenericSQL" />
     <file url="PROJECT" dialect="SQLite" />
   </component>
 </project>
