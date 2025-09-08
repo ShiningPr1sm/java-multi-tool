@@ -1,10 +1,9 @@
-package ui;
+package ui.achievements;
 
 import db.AchievementDB;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

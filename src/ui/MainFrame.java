@@ -3,6 +3,9 @@ package ui;
 import db.AchievementDB;
 import db.DB;
 import db.LevelManager;
+import ui.achievements.AchievementsPanel;
+import ui.daytab.BDaysNotifierPanel;
+import ui.settings.SettingsPanel;
 
 import javax.swing.*;
 import java.awt.*;

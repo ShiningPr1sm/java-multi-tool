@@ -1,4 +1,4 @@
-package ui;
+package ui.daytab;
 
 import db.BDaysDB;
 

@@ -1,7 +1,9 @@
-package ui;
+package ui.settings;
 
 import db.AchievementDB;
 import db.DB;
+import ui.AuthFrame;
+import ui.MainFrame;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
