@@ -110,15 +110,32 @@ public class BDaysNotifierPanel extends JPanel {
                 String name = model.getValueAt(row, 1).toString();
                 String dateStr = model.getValueAt(row, 2).toString();
                 try {
-                    LocalDate date = LocalDate.parse(dateStr, DISPLAY_FORMAT);
-                    BDaysDB.updateBirthday(id, name, date); // создаёшь этот метод
+                    String dbDate = uiToDb(dateStr);
+                    BDaysDB.updateBirthday(id, name, dbDate);
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid date format", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Invalid format. Use DD.MM.xxxx");
+                    refreshTable();
                 }
             }
         });
 
         table = new JTable(model);
+        table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable tbl, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                // Вместо значения из базы (value) пишем номер строки + 1
+                JLabel label = (JLabel) super.getTableCellRendererComponent(tbl, row + 1, isSelected, hasFocus, row, column);
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                return label;
+            }
+        });
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.getColumnModel().getColumn(0).setMaxWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(250);
+        table.getColumnModel().getColumn(2).setPreferredWidth(150);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setFillsViewportHeight(true);
         table.setBackground(new Color(25, 25, 25));
         table.setForeground(Color.WHITE);
@@ -149,17 +166,35 @@ public class BDaysNotifierPanel extends JPanel {
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         form.setBackground(new Color(30, 30, 30));
         JTextField nameField = new JTextField(10);
-        JFormattedTextField dateField = new JFormattedTextField(new DateFormatter(new SimpleDateFormat("dd.MM.yyyy")));
+        JTextField dateField = new JTextField(8);
+        dateField.setToolTipText("Format: dd.MM.yyyy or dd.MM.xxxx");
         dateField.setColumns(8);
         JButton addBtn = new JButton("Add");
         JButton removeBtn = new JButton("Remove");
+
+        styleTabButton(addBtn);
+        styleTabButton(removeBtn);
+
+        addBtn.setForeground(new Color(150, 255, 150));
+        removeBtn.setForeground(new Color(255, 150, 150));
+
         addBtn.addActionListener(e -> {
             try {
-                LocalDate d = LocalDate.parse(dateField.getText(), DISPLAY_FORMAT);
-                BDaysDB.addBirthday(nameField.getText(), d);
+                String inputDate = dateField.getText().trim();
+                String name = nameField.getText().trim();
+
+                if (name.isEmpty() || inputDate.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please fill all fields");
+                    return;
+                }
+                String dbDate = uiToDb(inputDate);
+                BDaysDB.addBirthday(name, dbDate);
+
                 refreshTable();
+                dateField.setText("");
+                nameField.setText("");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Invalid date format, use DD.MM.YYYY", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid format. Use DD.MM.YYYY or DD.MM.xxxx", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         removeBtn.addActionListener(e -> {
@@ -193,27 +228,70 @@ public class BDaysNotifierPanel extends JPanel {
         overviewContainer.setLayout(new BoxLayout(overviewContainer, BoxLayout.Y_AXIS));
         overviewContainer.setBackground(new Color(25, 25, 25));
 
+        overviewContainer.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+
         JScrollPane sp = new JScrollPane(overviewContainer);
-        sp.setBorder(BorderFactory.createEmptyBorder());
-        sp.setViewportBorder(BorderFactory.createEmptyBorder());
-        sp.getVerticalScrollBar().setBorder(null);
-        sp.getHorizontalScrollBar().setBorder(null);
-        sp.getViewport().setBackground(new Color(25, 25, 25));
-        panel.add(sp, BorderLayout.CENTER);
+        sp.setBackground(new Color(25, 25, 25));
         sp.setBorder(null);
         sp.setViewportBorder(null);
         sp.getViewport().setBackground(new Color(25, 25, 25));
+        sp.getVerticalScrollBar().setUnitIncrement(20);
+        styleScrollBar(sp);
         panel.add(sp, BorderLayout.CENTER);
-
         return panel;
+    }
+
+    private void styleScrollBar(JScrollPane sp) {
+        JScrollBar vBar = sp.getVerticalScrollBar();
+        vBar.setPreferredSize(new Dimension(8, 0));
+        vBar.setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(60, 60, 60);
+                this.trackColor = new Color(25, 25, 25);
+            }
+
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private JButton createZeroButton() {
+                JButton b = new JButton();
+                b.setPreferredSize(new Dimension(0, 0));
+                return b;
+            }
+
+            @Override
+            protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(thumbColor);
+                g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 8, 8);
+                g2.dispose();
+            }
+        });
     }
 
     private void refreshTable() {
         model.setRowCount(0);
+        int displayId = 1; // Визуальный счетчик
         try (var rs = BDaysDB.getAllBirthdays()) {
             while (rs.next()) {
-                LocalDate d = LocalDate.parse(rs.getString("bday_date"), STORAGE_FORMAT);
-                model.addRow(new Object[]{rs.getInt("id"), rs.getString("name"), d.format(DISPLAY_FORMAT)});
+                int realDbId = rs.getInt("id"); // Настоящий ID для базы
+                String name = rs.getString("name");
+                String dbDate = rs.getString("bday_date");
+
+                model.addRow(new Object[]{
+                        realDbId,
+                        name,
+                        dbToUi(dbDate)
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -226,77 +304,94 @@ public class BDaysNotifierPanel extends JPanel {
         String mode = (String) modeSelector.getSelectedItem();
         boolean upcoming = "Upcoming".equals(mode);
 
-        Map<String, Map<Integer, List<Object[]>>> grouping = new LinkedHashMap<>();
-        String[] seasons = {"Spring", "Summer", "Autumn", "Winter"};
-        for (String s : seasons) grouping.put(s, new LinkedHashMap<>());
+        // 1. Собираем все дни рождения в карту по МЕСЯЦАМ (Integer 1-12)
+        Map<Integer, List<Object[]>> monthMap = new TreeMap<>(); // TreeMap сразу сортирует по номеру месяца
 
         try (var rs = BDaysDB.getAllBirthdays()) {
             while (rs.next()) {
                 String name = rs.getString("name");
-                LocalDate bd = LocalDate.parse(rs.getString("bday_date"), STORAGE_FORMAT);
-                LocalDate candidate = bd.withYear(today.getYear());
+                String dbDateStr = rs.getString("bday_date");
+
+                int year = Integer.parseInt(dbDateStr.substring(0, 4));
+                int month = Integer.parseInt(dbDateStr.substring(5, 7));
+                int day = Integer.parseInt(dbDateStr.substring(8, 10));
+
+                boolean yearUnknown = (year == 0);
+                LocalDate candidate = LocalDate.of(today.getYear(), month, day);
                 boolean expired = upcoming && candidate.isBefore(today);
 
-                int m = candidate.getMonthValue();
-                String season;
-                if (m >= 3 && m <= 5) season = "Spring";
-                else if (m >= 6 && m <= 8) season = "Summer";
-                else if (m >= 9 && m <= 11) season = "Autumn";
-                else season = "Winter";
-
-                grouping.get(season)
-                        .computeIfAbsent(m, k -> new ArrayList<>())
-                        .add(new Object[]{name, bd, candidate, expired});
+                monthMap.computeIfAbsent(month, k -> new ArrayList<>())
+                        .add(new Object[]{name, yearUnknown ? null : LocalDate.of(year, month, day), candidate, expired, yearUnknown});
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        for (String season : seasons) {
-            var months = grouping.get(season);
-            if (months.isEmpty()) continue;
+        // 2. Определяем порядок прохода по месяцам
+        List<Integer> monthOrder = new ArrayList<>();
+        if ("Upcoming".equals(mode)) {
+            // Начинаем с текущего месяца и идем по кругу 12 месяцев
+            int startMonth = today.getMonthValue();
+            for (int i = 0; i < 12; i++) {
+                monthOrder.add((startMonth + i - 1) % 12 + 1);
+            }
+        } else if ("Reverse List".equals(mode)) {
+            for (int i = 12; i >= 1; i--) monthOrder.add(i);
+        } else {
+            // Обычный список с Января по Декабрь
+            for (int i = 1; i <= 12; i++) monthOrder.add(i);
+        }
 
-            Color seasonColor = switch (season) {
-                case "Winter" -> new Color(64, 224, 208);
-                case "Spring" -> new Color(100, 200, 100);
-                case "Summer" -> new Color(255, 215, 0);
-                case "Autumn" -> new Color(255, 140, 0);
-                default -> Color.WHITE;
-            };
+        // 3. Отрисовка
+        String lastSeason = "";
 
-            JLabel sl = new JLabel("   " + season);
-            sl.setForeground(seasonColor);
-            sl.setFont(sl.getFont().deriveFont(Font.BOLD, 16f));
-            overviewContainer.add(sl);
+        for (int monthNum : monthOrder) {
+            List<Object[]> entries = monthMap.get(monthNum);
+            if (entries == null || entries.isEmpty()) continue;
 
-            List<Integer> mks = new ArrayList<>(months.keySet());
-            Collections.sort(mks);
+            // Проверяем, сменился ли сезон
+            String currentSeason = getSeasonName(monthNum);
+            if (!currentSeason.equals(lastSeason)) {
+                addSeasonHeader(currentSeason);
+                lastSeason = currentSeason;
+            }
 
-            for (int mk : mks) {
-                String mn = Month.of(mk).getDisplayName(TextStyle.FULL, Locale.getDefault()).toUpperCase();
-                JLabel ml = new JLabel("      " + mn);
-                ml.setForeground(seasonColor);
-                ml.setFont(ml.getFont().deriveFont(Font.BOLD, 14f));
-                overviewContainer.add(ml);
+            // Заголовок месяца
+            String mn = Month.of(monthNum).getDisplayName(TextStyle.FULL, Locale.getDefault()).toUpperCase();
+            JLabel ml = new JLabel("      " + mn);
+            ml.setForeground(getSeasonColor(currentSeason));
+            ml.setFont(ml.getFont().deriveFont(Font.BOLD, 14f));
+            overviewContainer.add(ml);
 
-                List<Object[]> entries = new ArrayList<>(months.get(mk));
-                entries.sort(Comparator.comparing(o -> (LocalDate) o[2])); // sort by candidate
-                if ("Reverse List".equals(mode)) Collections.reverse(entries);
+            // Сортируем людей внутри месяца (по дням)
+            entries.sort(Comparator.comparing(o -> ((LocalDate) o[2]).getDayOfMonth()));
+            if ("Reverse List".equals(mode)) Collections.reverse(entries);
 
-                for (Object[] entry : entries) {
-                    String name = (String) entry[0];
-                    LocalDate originalBD = (LocalDate) entry[1];
-                    LocalDate candidate = (LocalDate) entry[2];
-                    boolean expired = (boolean) entry[3];
+            for (Object[] entry : entries) {
+                String name = (String) entry[0];
+                LocalDate originalBD = (LocalDate) entry[1];
+                LocalDate candidate = (LocalDate) entry[2];
+                boolean expired = (boolean) entry[3];
+                boolean yearUnknown = (boolean) entry[4];
 
-                    int age = originalBD.until(today).getYears();
-                    String ageText = expired ? "(already " + age + " y.o.)" : "(will be " + age + " y.o.)";
+                String ageText = "";
+                if (!yearUnknown) {
+                    // Считаем, сколько лет исполняется в году 'candidate' (т.е. в текущем году)
+                    int ageThisYear = candidate.getYear() - originalBD.getYear();
 
-                    JLabel lbl = new JLabel("     — " + name + " — " + candidate.format(DISPLAY_FORMAT) + " " + ageText);
-                    lbl.setFont(lbl.getFont().deriveFont(15f));
-                    lbl.setForeground(upcoming && expired ? Color.GRAY : Color.WHITE);
-                    overviewContainer.add(lbl);
+                    if (expired) {
+                        ageText = "(already " + ageThisYear + " y.o.)";
+                    } else {
+                        ageText = "(will be " + ageThisYear + " y.o.)";
+                    }
+                } else {
+                    ageText = "(age unknown)";
                 }
+                String dateShow = candidate.format(DateTimeFormatter.ofPattern("dd.MM")) + (yearUnknown ? ".xxxx" : "." + originalBD.getYear());
+                JLabel lbl = new JLabel("     — " + name + " — " + dateShow + " " + ageText);
+                lbl.setFont(lbl.getFont().deriveFont(15f));
+                lbl.setForeground(upcoming && expired ? Color.GRAY : Color.WHITE);
+                overviewContainer.add(lbl);
             }
         }
 
@@ -304,6 +399,32 @@ public class BDaysNotifierPanel extends JPanel {
         overviewContainer.repaint();
     }
 
+    // Вспомогательный метод для заголовка сезона
+    private void addSeasonHeader(String season) {
+        JLabel sl = new JLabel("   " + season);
+        sl.setForeground(getSeasonColor(season));
+        sl.setFont(sl.getFont().deriveFont(Font.BOLD, 16f));
+        overviewContainer.add(sl);
+    }
+
+    // Определение имени сезона
+    private String getSeasonName(int month) {
+        if (month >= 3 && month <= 5) return "Spring";
+        if (month >= 6 && month <= 8) return "Summer";
+        if (month >= 9 && month <= 11) return "Autumn";
+        return "Winter";
+    }
+
+    // Определение цвета сезона
+    private Color getSeasonColor(String season) {
+        return switch (season) {
+            case "Winter" -> new Color(64, 224, 208); // Бирюзовый
+            case "Spring" -> new Color(100, 200, 100); // Зеленый
+            case "Summer" -> new Color(255, 215, 0);   // Золотой
+            case "Autumn" -> new Color(255, 140, 0);   // Оранжевый
+            default -> Color.WHITE;
+        };
+    }
 
     private void styleTabButton(JComponent comp) {
         comp.setOpaque(true);
@@ -370,5 +491,26 @@ public class BDaysNotifierPanel extends JPanel {
                 else btn.setBackground(new Color(40, 40, 40));
             });
         }
+    }
+    private String uiToDb(String uiDate) throws Exception {
+        if (uiDate.toLowerCase().endsWith(".xxxx")) {
+            String[] parts = uiDate.split("\\.");
+            if (parts.length < 2) throw new Exception("Invalid format");
+            String day = parts[0];
+            String month = parts[1];
+            // Формируем ISO: 0000-MM-DD
+            return String.format("0000-%s-%s", month, day);
+        }
+        LocalDate date = LocalDate.parse(uiDate, DISPLAY_FORMAT);
+        return date.toString(); // Вернет YYYY-MM-DD
+    }
+
+    private String dbToUi(String dbDate) {
+        if (dbDate.startsWith("0000-")) {
+            // Из 0000-05-20 делаем 20.05.xxxx
+            String[] parts = dbDate.split("-");
+            return parts[2] + "." + parts[1] + ".xxxx";
+        }
+        return LocalDate.parse(dbDate, STORAGE_FORMAT).format(DISPLAY_FORMAT);
     }
 }
