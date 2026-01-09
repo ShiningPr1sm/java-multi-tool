@@ -4,9 +4,11 @@ import db.AchievementDB;
 import db.DB;
 import ui.AuthFrame;
 import ui.MainFrame;
+import ui.UIStyle;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,14 +34,15 @@ public class SettingsPanel extends JPanel {
         userInfoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel avatarLabel = new JLabel();
-        avatarLabel.setPreferredSize(new Dimension(105, 105));
-        avatarLabel.setMaximumSize(new Dimension(105, 105));
+        avatarLabel.setPreferredSize(new Dimension(121, 121));
+        avatarLabel.setMaximumSize(new Dimension(121, 121));
         avatarLabel.setOpaque(true);
         avatarLabel.setBackground(Color.GRAY);
         updateAvatarImage(avatarLabel);
 
         JButton changeAvatarBtn = new JButton("Change Avatar");
         changeAvatarBtn.addActionListener(_ -> chooseAvatar(mainFrame, avatarLabel));
+        UIStyle.styleButton(changeAvatarBtn);
 
         JPanel avatarBox = new JPanel();
         avatarBox.setLayout(new BoxLayout(avatarBox, BoxLayout.Y_AXIS));
@@ -56,9 +59,11 @@ public class SettingsPanel extends JPanel {
 
         JButton saveNicknameBtn = new JButton("Save Changes");
         saveNicknameBtn.addActionListener(_ -> updateNickname(mainFrame, login, nicknameField.getText()));
+        UIStyle.styleButton(saveNicknameBtn);
 
         JButton changePasswordBtn = new JButton("Change Password");
         changePasswordBtn.addActionListener(_ -> openChangePasswordDialog(login));
+        UIStyle.styleButton(changePasswordBtn);
 
         JPanel nicknameBox = new JPanel();
         nicknameBox.setLayout(new BoxLayout(nicknameBox, BoxLayout.Y_AXIS));
@@ -130,6 +135,7 @@ public class SettingsPanel extends JPanel {
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         logoutBtn.addActionListener(_ -> logout());
+        UIStyle.styleButton(logoutBtn);
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
@@ -164,7 +170,7 @@ public class SettingsPanel extends JPanel {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Choose an image");
         fileChooser.setAcceptAllFileFilterUsed(false);
-        fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Image files", "jpg", "jpeg", "png", "bmp", "gif"));
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Image files", "jpg", "jpeg", "png", "bmp", "gif"));
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File selected = fileChooser.getSelectedFile();
             try {
@@ -172,17 +178,17 @@ public class SettingsPanel extends JPanel {
                 if (img != null) {
                     BufferedImage cropped = AvatarCropperDialog.showCropDialog(this, img);
                     if (cropped != null) {
-                        BufferedImage resized = new BufferedImage(105, 105, BufferedImage.TYPE_INT_ARGB);
+                        BufferedImage resized = new BufferedImage(121, 121, BufferedImage.TYPE_INT_ARGB);
                         Graphics2D g2d = resized.createGraphics();
-                        g2d.drawImage(cropped.getScaledInstance(105, 105, Image.SCALE_SMOOTH), 0, 0, null);
+                        g2d.drawImage(cropped.getScaledInstance(121, 121, Image.SCALE_SMOOTH), 0, 0, null);
                         g2d.dispose();
                         ImageIO.write(resized, "png", AVATAR_FILE);
                         updateAvatarImage(avatarLabel);
 
                         if (AVATAR_FILE.exists()) {
                             ImageIcon icon = new ImageIcon(AVATAR_FILE.getAbsolutePath());
-                            Image scaledImage = icon.getImage().getScaledInstance(105, 105, Image.SCALE_SMOOTH);
-                            ImageIcon scaledIcon = new ImageIcon(scaledImage);
+                            Image scaledImageAvatar = icon.getImage().getScaledInstance(55, 55, Image.SCALE_SMOOTH);
+                            ImageIcon scaledIcon = new ImageIcon(scaledImageAvatar);
                             mainFrame.updateAvatarImage(scaledIcon);
                         }
                     }
@@ -256,7 +262,7 @@ public class SettingsPanel extends JPanel {
         if (AVATAR_FILE.exists()) {
             try {
                 BufferedImage img = ImageIO.read(AVATAR_FILE);
-                ImageIcon icon = new ImageIcon(img.getScaledInstance(105, 105, Image.SCALE_SMOOTH));
+                ImageIcon icon = new ImageIcon(img.getScaledInstance(121, 121, Image.SCALE_SMOOTH));
                 label.setIcon(icon);
                 label.setText("");
             } catch (IOException ignored) {}

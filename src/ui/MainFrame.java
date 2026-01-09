@@ -5,6 +5,7 @@ import db.DB;
 import db.LevelManager;
 import ui.achievements.AchievementsPanel;
 import ui.daytab.BDaysNotifierPanel;
+import ui.photovideotab.MediaDownloaderPanel;
 import ui.settings.SettingsPanel;
 
 import javax.swing.*;
@@ -321,7 +322,9 @@ public class MainFrame extends JFrame {
                 // |======================|
 
                 // сюда в будущем можно добавлять другие кейсы по названию item
-
+                if ("Media Downloader".equals(item)) {
+                    contentPanel.add(new MediaDownloaderPanel(), BorderLayout.CENTER);
+                }
                 if ("BDays notifier".equals(item)) {
                     contentPanel.add(new BDaysNotifierPanel(), BorderLayout.CENTER);
                 }

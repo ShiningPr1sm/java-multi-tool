@@ -1,6 +1,7 @@
 package ui.daytab;
 
 import db.BDaysDB;
+import ui.UIStyle;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxUI;
@@ -40,14 +41,14 @@ public class BDaysNotifierPanel extends JPanel {
 
         // Mode selector
         modeSelector = new JComboBox<>(new String[]{"Upcoming", "List", "Reverse List"});
-        styleTabButton(modeSelector);
+        UIStyle.styleComboBox(modeSelector);
         top.add(modeSelector);
 
         // Overview/Edit buttons
         JButton overviewBtn = new JButton("Overview");
         JButton editBtn     = new JButton("Edit");
-        styleTabButton(overviewBtn);
-        styleTabButton(editBtn);
+        UIStyle.styleButton(overviewBtn);
+        UIStyle.styleButton(editBtn);
         top.add(overviewBtn);
         top.add(editBtn);
         add(top, BorderLayout.NORTH);
@@ -172,8 +173,8 @@ public class BDaysNotifierPanel extends JPanel {
         JButton addBtn = new JButton("Add");
         JButton removeBtn = new JButton("Remove");
 
-        styleTabButton(addBtn);
-        styleTabButton(removeBtn);
+        UIStyle.styleButton(addBtn);
+        UIStyle.styleButton(removeBtn);
 
         addBtn.setForeground(new Color(150, 255, 150));
         removeBtn.setForeground(new Color(255, 150, 150));
@@ -426,72 +427,6 @@ public class BDaysNotifierPanel extends JPanel {
         };
     }
 
-    private void styleTabButton(JComponent comp) {
-        comp.setOpaque(true);
-        comp.setBackground(new Color(40, 40, 40));
-        comp.setForeground(Color.WHITE);
-        if (comp instanceof JComboBox) {
-            @SuppressWarnings("unchecked")
-            JComboBox<String> cb = (JComboBox<String>) comp;
-            cb.setBorder(BorderFactory.createEmptyBorder());
-            cb.setFocusable(false);
-            cb.setBackground(new Color(40, 40, 40));
-            cb.setForeground(Color.WHITE);
-            cb.setLightWeightPopupEnabled(true);
-            cb.setUI(new BasicComboBoxUI() {
-                @Override
-                protected JButton createArrowButton() {
-                    JButton btn = new JButton("▼");
-                    btn.setBorder(BorderFactory.createEmptyBorder());
-                    btn.setContentAreaFilled(false);
-                    btn.setFocusPainted(false);
-                    btn.setBackground(new Color(40, 40, 40));
-                    btn.setForeground(Color.WHITE);
-                    btn.setFont(btn.getFont().deriveFont(Font.PLAIN, 12f));
-                    return btn;
-                }
-
-                @Override
-                public void installDefaults() {
-                    super.installDefaults();
-                    comboBox.setBorder(BorderFactory.createEmptyBorder());
-                    comboBox.setBackground(new Color(40, 40, 40));
-                }
-
-                @Override
-                public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
-                    g.setColor(new Color(40, 40, 40));
-                    g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-                }
-            });
-            cb.setRenderer(new DefaultListCellRenderer() {
-                @Override
-                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                    JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                    lbl.setOpaque(true);
-                    lbl.setHorizontalAlignment(SwingConstants.CENTER);
-                    lbl.setBackground(isSelected ? new Color(60, 60, 60) : new Color(40, 40, 40));
-                    lbl.setForeground(Color.WHITE);
-                    lbl.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                    return lbl;
-                }
-            });
-        } else if (comp instanceof AbstractButton) {
-            AbstractButton btn = (AbstractButton) comp;
-            btn.setOpaque(true);
-            btn.setBackground(new Color(40, 40, 40));
-            btn.setForeground(Color.WHITE);
-            btn.setFocusPainted(false);
-            btn.setBorderPainted(false);
-            // leave content area filled for proper button background
-            btn.getModel().addChangeListener(e -> {
-                ButtonModel m = btn.getModel();
-                if (m.isPressed()) btn.setBackground(new Color(60, 60, 60));
-                else if (m.isRollover()) btn.setBackground(new Color(55, 55, 55));
-                else btn.setBackground(new Color(40, 40, 40));
-            });
-        }
-    }
     private String uiToDb(String uiDate) throws Exception {
         if (uiDate.toLowerCase().endsWith(".xxxx")) {
             String[] parts = uiDate.split("\\.");
