@@ -1,14 +1,11 @@
-package ui;
+package ui.settings;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
-import java.io.File;
-import java.io.IOException;
 
 public class AvatarCropperDialog extends JDialog {
     private BufferedImage originalImage;

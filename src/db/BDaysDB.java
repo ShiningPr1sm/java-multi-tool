@@ -15,7 +15,7 @@ public class BDaysDB {
     public static void initializeDatabase() {
         String sql = """
             CREATE TABLE IF NOT EXISTS birthdays (
-              id         INTEGER PRIMARY KEY AUTOINCREMENT,
+              id         INTEGER PRIMARY KEY,
               name       TEXT    NOT NULL,
               bday_date  TEXT    NOT NULL  -- храним в ISO-формате, например 2004-05-02
             );
@@ -32,16 +32,16 @@ public class BDaysDB {
     public static ResultSet getAllBirthdays() throws SQLException {
         Connection conn = getConnection();
         PreparedStatement st = conn.prepareStatement(
-                "SELECT id, name, bday_date FROM birthdays ORDER BY bday_date");
+                "SELECT id, name, bday_date FROM birthdays ORDER BY id ASC");
         return st.executeQuery();
     }
 
-    public static void addBirthday(String name, LocalDate date) {
+    public static void addBirthday(String name, String dateStr) { // Теперь String
         String sql = "INSERT INTO birthdays(name,bday_date) VALUES(?,?)";
         try (Connection conn = getConnection();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setString(1, name);
-            st.setString(2, date.toString());
+            st.setString(2, dateStr);
             st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,4 +58,15 @@ public class BDaysDB {
             e.printStackTrace();
         }
     }
+
+    public static void updateBirthday(int id, String name, String dateStr) throws SQLException { // Теперь String
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(
+                "UPDATE birthdays SET name = ?, bday_date = ? WHERE id = ?")) {
+            ps.setString(1, name);
+            ps.setString(2, dateStr);
+            ps.setInt(3, id);
+            ps.executeUpdate();
+        }
+    }
+
 }

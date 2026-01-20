@@ -1,6 +1,7 @@
 import db.DB;
 import ui.AuthFrame;
 import ui.MainFrame;
+import ui.utils.AuthService;
 import javax.swing.*;
 
 public class Main {
@@ -11,10 +12,9 @@ public class Main {
             e.printStackTrace();
         }
 
-        // Инициализация базы данных
+        AuthService.initializeRights();
         DB.initializeDatabase();
 
-        // Автовход, если пользователь сохранил логин
         String savedLogin = DB.getAutoLoginUser();
         SwingUtilities.invokeLater(() -> {
             if (savedLogin != null && !savedLogin.isBlank()) {
