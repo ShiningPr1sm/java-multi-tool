@@ -195,7 +195,7 @@ public class BDaysNotifierPanel extends JPanel {
                 dateField.setText("");
                 nameField.setText("");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Invalid format. Use DD.MM.YYYY or DD.MM.xxxx", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid format. Use dd.MM.yyyy or dd.MM.xxxx", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         removeBtn.addActionListener(e -> {

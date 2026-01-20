@@ -7,6 +7,7 @@ import ui.achievements.AchievementsPanel;
 import ui.daytab.BDaysNotifierPanel;
 import ui.photovideotab.MediaDownloaderPanel;
 import ui.settings.SettingsPanel;
+import ui.utils.AuthService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -109,20 +110,34 @@ public class MainFrame extends JFrame {
         textBox.setLayout(new BoxLayout(textBox, BoxLayout.Y_AXIS));
         textBox.setBackground(new Color(45, 45, 45));
 
-        if (!Objects.equals(login, DB.getNickname(login))) {
-            //loginLabel.setText(login + " | " + DB.getNickname(login));
+        String roleColor = "#ffffff";
+        if (AuthService.isAdmin()) {
+            roleColor = "#c200ff";
             loginLabel.setText(
-                    "<html><span style='color:#c200ff; font-weight:bold;'>"
-                            + login
+                    "<html><span style='color:" + roleColor + "; font-weight:bold;'>"
+                            + "Admin"
                             + "</span>"
-                            + " | " //+ "<span style='color:#c200ff; font-weight:bold;'>"
+                            + " | "
+                            + DB.getNickname(login)
+                            + "</html>"
+            );
+        } else if (AuthService.isTester()) {
+            roleColor = "#64c864";
+            loginLabel.setText(
+                    "<html><span style='color:" + roleColor + "; font-weight:bold;'>"
+                            + "Tester"
+                            + "</span>"
+                            + " | "
                             + DB.getNickname(login)
                             + "</html>"
             );
         } else {
-            loginLabel.setText("<html><span style='color:#c200ff; font-weight:bold;'>"
-                    + login
-                    + "</span>");
+            loginLabel.setText(
+                    "<html><span style='color:" + roleColor + "; font-weight:bold;'>"
+                            + "</span>"
+                            + DB.getNickname(login)
+                            + "</html>"
+            );
         }
 
         loginLabel.setForeground(Color.WHITE);
