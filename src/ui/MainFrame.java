@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
 
     private JLabel avatarLabel;
     private final String login;
+    private static String currentLogin;
     private JPanel contentPanel;
     private JLabel levelLabel;
     private JLabel xpPopupLabel;
@@ -38,6 +39,7 @@ public class MainFrame extends JFrame {
 
     public MainFrame(String login) {
         this.login = login;
+        currentLogin = login;
 
         LevelManager.initializeDatabase();
         LevelManager.ensureUserEntry(login);
@@ -292,16 +294,17 @@ public class MainFrame extends JFrame {
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
 
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(createExpandableSection("Photo & Video", new String[]{"Photo-Sorter", "Media Downloader", "Remove Background", "Upscale"}));
+        sidebar.add(createExpandableSection("Photo & Video", new String[]{"Media Downloader", "File Organizer", "Image Tools"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         sidebar.add(createExpandableSection("Math", new String[]{"Calculator", "Unit Converter"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(createExpandableSection("Text editing", new String[]{"Find, Replace"}));
+        sidebar.add(createExpandableSection("Text", new String[]{"Find & Replace"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(createExpandableSection("Time", new String[]{"Timer"}));
+        sidebar.add(createExpandableSection("Time", new String[]{"Timer", "BDays notifier"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(createExpandableSection("Days", new String[]{"BDays notifier"}));
-
+        if (AuthService.isAdmin()) {
+            sidebar.add(createExpandableSection("Admin Panel", new String[]{}));
+        }
         return sidebar;
     }
 
@@ -333,7 +336,7 @@ public class MainFrame extends JFrame {
                 contentPanel.removeAll();
 
                 // |======================|
-                // |                    КНОПКИ                        |
+                // |        КНОПКИ        |
                 // |======================|
 
                 // сюда в будущем можно добавлять другие кейсы по названию item
@@ -449,24 +452,42 @@ public class MainFrame extends JFrame {
         avatarLabel.setIcon(newIcon);
     }
 
+    public static String loginValue() {
+        return currentLogin;
+    }
+
     /**
      * Updates the nickname in the header.
      */
     public void updateNickName(String nickname) {
-        if (!Objects.equals(login, DB.getNickname(login))) {
-            //loginLabel.setText(login + " | " + DB.getNickname(login));
+        String roleColor = "#ffffff";
+        if (AuthService.isAdmin()) {
+            roleColor = "#c200ff";
             loginLabel.setText(
-                    "<html><span style='color:#c200ff; font-weight:bold;'>"
-                            + login
+                    "<html><span style='color:" + roleColor + "; font-weight:bold;'>"
+                            + "Admin"
                             + "</span>"
-                            + " | " //+ "<span style='color:#c200ff; font-weight:bold;'>"
+                            + " | "
+                            + DB.getNickname(login)
+                            + "</html>"
+            );
+        } else if (AuthService.isTester()) {
+            roleColor = "#64c864";
+            loginLabel.setText(
+                    "<html><span style='color:" + roleColor + "; font-weight:bold;'>"
+                            + "Tester"
+                            + "</span>"
+                            + " | "
                             + DB.getNickname(login)
                             + "</html>"
             );
         } else {
-            loginLabel.setText("<html><span style='color:#c200ff; font-weight:bold;'>"
-                    + login
-                    + "</span>");
+            loginLabel.setText(
+                    "<html><span style='color:" + roleColor + "; font-weight:bold;'>"
+                            + "</span>"
+                            + DB.getNickname(login)
+                            + "</html>"
+            );
         }
     }
 

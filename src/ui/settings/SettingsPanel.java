@@ -202,7 +202,7 @@ public class SettingsPanel extends JPanel {
     private void updateNickname(MainFrame mainFrame, String login, String nickname) {
         if (!nickname.isEmpty()) {
             try (Connection conn = DB.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement("UPDATE users SET nickname = ? WHERE login = ?")) {
+                PreparedStatement stmt = conn.prepareStatement("UPDATE users SET nickname = ? WHERE login = ?")) {
                 stmt.setString(1, nickname);
                 stmt.setString(2, login);
                 stmt.executeUpdate();

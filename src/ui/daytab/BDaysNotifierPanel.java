@@ -1,6 +1,8 @@
 package ui.daytab;
 
+import db.AchievementDB;
 import db.BDaysDB;
+import ui.MainFrame;
 import ui.UIStyle;
 
 import javax.swing.*;
@@ -190,6 +192,8 @@ public class BDaysNotifierPanel extends JPanel {
                 }
                 String dbDate = uiToDb(inputDate);
                 BDaysDB.addBirthday(name, dbDate);
+
+                AchievementDB.completeAchievement(MainFrame.loginValue(), "real_friend");
 
                 refreshTable();
                 dateField.setText("");
