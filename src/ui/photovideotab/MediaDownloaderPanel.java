@@ -79,7 +79,7 @@ public class MediaDownloaderPanel extends JPanel {
         });
 
         JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(450, 150)); // Фиксированная высота ввода
+        scrollPane.setPreferredSize(new Dimension(650, 350)); // Фиксированная высота ввода
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
         UIStyle.styleScrollBar(scrollPane);
         centralPanel.add(scrollPane, gbc);

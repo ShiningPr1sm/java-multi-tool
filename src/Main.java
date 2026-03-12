@@ -1,3 +1,4 @@
+import db.AchievementDB;
 import db.DB;
 import ui.AuthFrame;
 import ui.MainFrame;
@@ -14,6 +15,13 @@ public class Main {
 
         AuthService.initializeRights();
         DB.initializeDatabase();
+
+        try {
+            AchievementDB.initializeDatabase();
+            AchievementDB.insertDefaultAchievements();
+        } catch (Exception e) {
+            System.err.println("Failed to init AchievementDB: " + e.getMessage());
+        }
 
         String savedLogin = DB.getAutoLoginUser();
         SwingUtilities.invokeLater(() -> {

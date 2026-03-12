@@ -18,25 +18,17 @@ public class DB {
                     password TEXT NOT NULL,
                     nickname TEXT DEFAULT '',
                     reg_time TEXT DEFAULT CURRENT_TIMESTAMP,
-                    last_login TEXT DEFAULT CURRENT_TIMESTAMP
+                    last_login TEXT DEFAULT CURRENT_TIMESTAMP,
+                    save_login INTEGER DEFAULT 0
                 );
             """);
-
-            // Добавляем недостающие поля, если таблица уже существовала
-            try (Statement alterStmt = conn.createStatement()) {
-                alterStmt.execute("ALTER TABLE users ADD COLUMN achievements INTEGER DEFAULT 0;");
-            } catch (SQLException ignored) {}
-
-            try (Statement alterStmt = conn.createStatement()) {
-                alterStmt.execute("ALTER TABLE users ADD COLUMN save_login INTEGER DEFAULT 0;");
-            } catch (SQLException ignored) {}
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     *Регистрирует нового пользователя в системе.
+     * Регистрирует нового пользователя в системе.
      */
     public static boolean register(String login, String password) {
         try (Connection conn = getConnection();
@@ -52,7 +44,7 @@ public class DB {
     }
 
     /**
-     *Запрос к БД на возврат логина и пароля.
+     * Запрос к БД на возврат логина и пароля.
      */
     public static boolean checkLogin(String login, String password) {
         try (Connection conn = getConnection();
@@ -68,7 +60,7 @@ public class DB {
     }
 
     /**
-     *Возвращает значение ник-нейма пользователя.
+     * Возвращает значение ник-нейма пользователя.
      */
     public static String getNickname(String login) {
         try (Connection conn = getConnection();
@@ -85,7 +77,7 @@ public class DB {
     }
 
     /**
-     *Запрос на смену значения для авто-входа.
+     * Запрос на смену значения для авто-входа.
      */
     public static void setSaveLogin(String login, boolean enabled) {
         try (Connection conn = getConnection();
@@ -99,7 +91,7 @@ public class DB {
     }
 
     /**
-     *Запрос к БД для проверки значения для авто-входа.
+     * Запрос к БД для проверки значения для авто-входа.
      */
     public static boolean isSaveLoginEnabled(String login) {
         try (Connection conn = getConnection();
@@ -116,7 +108,7 @@ public class DB {
     }
 
     /**
-     *Запрос к БД для проверки пароля пользователя.
+     * Запрос к БД для проверки пароля пользователя.
      */
     public static boolean checkPassword(String login, String password) {
         try (Connection conn = getConnection();
@@ -134,7 +126,7 @@ public class DB {
     }
 
     /**
-     *Обновление пароля пользователя.
+     * Обновление пароля пользователя.
      */
     public static void updatePassword(String login, String newPassword) {
         try (Connection conn = getConnection();
@@ -148,7 +140,7 @@ public class DB {
     }
 
     /**
-     *Возвращает дату регистрации пользователя.
+     * Возвращает дату регистрации пользователя.
      */
     public static String getRegistrationDate(String login) {
         try (Connection conn = getConnection();

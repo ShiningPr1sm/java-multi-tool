@@ -193,8 +193,6 @@ public class BDaysNotifierPanel extends JPanel {
                 String dbDate = uiToDb(inputDate);
                 BDaysDB.addBirthday(name, dbDate);
 
-                AchievementDB.completeAchievement(MainFrame.loginValue(), "real_friend");
-
                 refreshTable();
                 dateField.setText("");
                 nameField.setText("");

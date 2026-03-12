@@ -64,7 +64,7 @@ public class AchievementsPanel extends JPanel {
 
                     // добавляем подпись уровня, если уровней больше одного
                     String displayTitle = title;
-                    if (AchievementDB.getMaxAchievementLevel(code) > 0) {
+                    if (AchievementDB.getMaxAchievementLevel(code) > 1) {
                         displayTitle += " (Level " + level + ")";
                     }
 
