@@ -22,7 +22,6 @@ public class UIStyle {
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-
         btn.getModel().addChangeListener(_ -> {
             ButtonModel m = btn.getModel();
             if (m.isPressed()) btn.setBackground(BUTTON_PRESSED);
@@ -87,6 +86,35 @@ public class UIStyle {
                 lbl.setForeground(TEXT_COLOR);
                 lbl.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
                 return lbl;
+            }
+        });
+    }
+
+    public static void styleTabbedPane(JTabbedPane tabs) {
+        tabs.setBackground(BG_COLOR);
+        tabs.setForeground(Color.WHITE);
+        tabs.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        tabs.setFocusable(false);
+        tabs.setBorder(BorderFactory.createEmptyBorder());
+
+        UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
+        UIManager.put("TabbedPane.tabsOverlapBorder", true);
+
+        tabs.updateUI();
+        tabs.setUI(new javax.swing.plaf.basic.BasicTabbedPaneUI() {
+            @Override
+            protected void installDefaults() {
+                super.installDefaults();
+                highlight = BG_COLOR;
+                lightHighlight = BG_COLOR;
+                shadow = BG_COLOR;
+                darkShadow = BG_COLOR;
+                focus = BG_COLOR;
+            }
+
+            @Override
+            protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
+
             }
         });
     }

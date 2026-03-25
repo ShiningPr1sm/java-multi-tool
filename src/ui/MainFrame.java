@@ -5,6 +5,7 @@ import db.DB;
 import db.LevelManager;
 import ui.achievements.AchievementsPanel;
 import ui.daytab.BDaysNotifierPanel;
+import ui.daytab.WorkflowPanel;
 import ui.photovideotab.MediaDownloaderPanel;
 import ui.settings.SettingsPanel;
 import ui.utils.AuthService;
@@ -300,7 +301,7 @@ public class MainFrame extends JFrame {
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         sidebar.add(createExpandableSection("Text", new String[]{"Find & Replace"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
-        sidebar.add(createExpandableSection("Time", new String[]{"Timer", "BDays notifier"}));
+        sidebar.add(createExpandableSection("Time", new String[]{"Workflow", "Timer", "BDays notifier"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         if (AuthService.isAdmin()) {
             sidebar.add(createExpandableSection("Admin Panel", new String[]{}));
@@ -345,6 +346,9 @@ public class MainFrame extends JFrame {
                 }
                 if ("BDays notifier".equals(item)) {
                     contentPanel.add(new BDaysNotifierPanel(), BorderLayout.CENTER);
+                }
+                if ("Workflow".equals(item)) {
+                    contentPanel.add(new WorkflowPanel(), BorderLayout.CENTER);
                 }
 
                 contentPanel.revalidate();

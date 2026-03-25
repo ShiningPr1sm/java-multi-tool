@@ -1,5 +1,6 @@
 import db.AchievementDB;
 import db.DB;
+import db.WorkflowDB;
 import ui.AuthFrame;
 import ui.MainFrame;
 import ui.utils.AuthService;
@@ -15,6 +16,7 @@ public class Main {
 
         AuthService.initializeRights();
         DB.initializeDatabase();
+        WorkflowDB.initializeDatabase();
 
         try {
             AchievementDB.initializeDatabase();
