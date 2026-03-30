@@ -15,8 +15,14 @@ public class AppLogger {
     private static JTextArea consoleOutput;
 
     public static void log(String level, String message) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        StackTraceElement caller = stackTrace[3];
+        String fileName = caller.getFileName();
+        int lineNumber = caller.getLineNumber();
+
         String timestamp = LocalDateTime.now().format(formatter);
-        String logEntry = String.format("[%s] [%s] %s", timestamp, level.toUpperCase(), message);
+        String logEntry = String.format("[%s] [%s] [%s:%d] %s",
+                timestamp, level.toUpperCase(), fileName, lineNumber, message);
 
         System.out.println(logEntry);
         sessionLogs.add(logEntry);
