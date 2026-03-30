@@ -4,6 +4,7 @@ import db.AchievementDB;
 import db.DB;
 import db.LevelManager;
 import ui.achievements.AchievementsPanel;
+import ui.admin.AdminLogPanel;
 import ui.daytab.BDaysNotifierPanel;
 import ui.daytab.WorkflowPanel;
 import ui.photovideotab.MediaDownloaderPanel;
@@ -88,11 +89,11 @@ public class MainFrame extends JFrame {
     private JPanel createHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setPreferredSize(new Dimension(getWidth(), HEADER_HEIGHT));
-        header.setBackground(new Color(30, 30, 30));
+        header.setBackground(UIStyle.HEADER_COLOR);
 
         JPanel profileBox = new JPanel();
         profileBox.setPreferredSize(new Dimension(SIDEBAR_WIDTH, HEADER_HEIGHT));
-        profileBox.setBackground(new Color(45, 45, 45));
+        profileBox.setBackground(UIStyle.SIDE_BOX);
         profileBox.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
         avatarLabel = new JLabel();
@@ -111,7 +112,7 @@ public class MainFrame extends JFrame {
 
         JPanel textBox = new JPanel();
         textBox.setLayout(new BoxLayout(textBox, BoxLayout.Y_AXIS));
-        textBox.setBackground(new Color(45, 45, 45));
+        textBox.setBackground(UIStyle.SIDE_BOX);
 
         String roleColor = "#ffffff";
         if (AuthService.isAdmin()) {
@@ -178,7 +179,7 @@ public class MainFrame extends JFrame {
         achievementsBtn.setPreferredSize(new Dimension(40, 40));
         achievementsBtn.setFocusPainted(false);
         achievementsBtn.setBorderPainted(false);
-        achievementsBtn.setBackground(new Color(30, 30, 30));
+        achievementsBtn.setBackground(UIStyle.HEADER_COLOR);
         achievementsBtn.addActionListener(_ -> {
             contentPanel.removeAll();
             contentPanel.add(new AchievementsPanel(login), BorderLayout.CENTER);
@@ -198,7 +199,7 @@ public class MainFrame extends JFrame {
         settingsBtn.setPreferredSize(new Dimension(40, 40));
         settingsBtn.setFocusPainted(false);
         settingsBtn.setBorderPainted(false);
-        settingsBtn.setBackground(new Color(30, 30, 30));
+        settingsBtn.setBackground(UIStyle.HEADER_COLOR);
         settingsBtn.addActionListener(_ -> {
             contentPanel.removeAll();
 
@@ -231,7 +232,7 @@ public class MainFrame extends JFrame {
         });
 
         JPanel rightBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 15));
-        rightBox.setBackground(new Color(30, 30, 30));
+        rightBox.setBackground(UIStyle.HEADER_COLOR);
         rightBox.add(achievementsBtn);
         rightBox.add(settingsBtn);
 
@@ -282,7 +283,7 @@ public class MainFrame extends JFrame {
         JPanel main = new JPanel(new BorderLayout());
         main.add(createSidebar(), BorderLayout.WEST);
         contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(new Color(25, 25, 25));
+        contentPanel.setBackground(UIStyle.BG_COLOR);
         main.add(contentPanel, BorderLayout.CENTER);
 
         return main;
@@ -290,7 +291,7 @@ public class MainFrame extends JFrame {
 
     private JPanel createSidebar() {
         JPanel sidebar = new JPanel();
-        sidebar.setBackground(new Color(45, 45, 45));
+        sidebar.setBackground(UIStyle.SIDE_BOX);
         sidebar.setPreferredSize(new Dimension(SIDEBAR_WIDTH, getHeight()));
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
 
@@ -304,7 +305,8 @@ public class MainFrame extends JFrame {
         sidebar.add(createExpandableSection("Time", new String[]{"Workflow", "Timer", "BDays notifier"}));
         sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         if (AuthService.isAdmin()) {
-            sidebar.add(createExpandableSection("Admin Panel", new String[]{}));
+            sidebar.add(createExpandableSection("Admin Panel", new String[]{"Admin CMD"}));
+            sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         }
         return sidebar;
     }
@@ -312,10 +314,10 @@ public class MainFrame extends JFrame {
     private JPanel createExpandableSection(String title, String[] items) {
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-        container.setBackground(new Color(45, 45, 45));
+        container.setBackground(UIStyle.SIDE_BOX);
 
         JButton mainButton = new JButton(title + " | ▼");
-        styleSidebarButton(mainButton);
+        UIStyle.styleSidebarMainButton(mainButton, SIDEBAR_WIDTH);
 
         mainButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainButton.setMaximumSize(new Dimension(SIDEBAR_WIDTH - 20, 40));
@@ -324,31 +326,31 @@ public class MainFrame extends JFrame {
 
         JPanel subPanel = new JPanel();
         subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
-        subPanel.setBackground(new Color(45, 45, 45));
+        subPanel.setBackground(UIStyle.SIDE_BOX);
         subPanel.setMaximumSize(new Dimension(SIDEBAR_WIDTH, 0));
         subPanel.setPreferredSize(new Dimension(SIDEBAR_WIDTH, 0));
         subPanel.setVisible(false);
 
         for (String item : items) {
             JButton subBtn = new JButton(item);
-            styleSubFunctionButton(subBtn);
+            UIStyle.styleSidebarSubButton(subBtn, SIDEBAR_WIDTH);
 
             subBtn.addActionListener(_ -> {
                 contentPanel.removeAll();
-
                 // |======================|
                 // |        КНОПКИ        |
                 // |======================|
-
-                // сюда в будущем можно добавлять другие кейсы по названию item
                 if ("Media Downloader".equals(item)) {
                     contentPanel.add(new MediaDownloaderPanel(), BorderLayout.CENTER);
+                }
+                if ("Workflow".equals(item)) {
+                    contentPanel.add(new WorkflowPanel(), BorderLayout.CENTER);
                 }
                 if ("BDays notifier".equals(item)) {
                     contentPanel.add(new BDaysNotifierPanel(), BorderLayout.CENTER);
                 }
-                if ("Workflow".equals(item)) {
-                    contentPanel.add(new WorkflowPanel(), BorderLayout.CENTER);
+                if ("Admin CMD".equals(item)) {
+                    contentPanel.add(new AdminLogPanel(), BorderLayout.CENTER);
                 }
 
                 contentPanel.revalidate();
@@ -401,48 +403,6 @@ public class MainFrame extends JFrame {
         container.add(subPanel);
 
         return container;
-    }
-
-    private void styleSidebarButton(JButton button) {
-        button.setMaximumSize(new Dimension(SIDEBAR_WIDTH - 20, 40));
-        button.setFocusPainted(false);
-        button.setForeground(Color.WHITE);
-        button.setBackground(new Color(60, 60, 60));
-        button.setBorderPainted(false);
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        button.getModel().addChangeListener(_ -> {
-            ButtonModel model = button.getModel();
-            if (model.isPressed()) {
-                button.setBackground(new Color(70, 90, 140));
-            } else if (model.isRollover()) {
-                button.setBackground(new Color(75, 75, 75)); // hover светлее
-            } else {
-                button.setBackground(new Color(60, 60, 60));
-            }
-        });
-    }
-
-    private void styleSubFunctionButton(JButton button) {
-        button.setMaximumSize(new Dimension(SIDEBAR_WIDTH - 40, 30));
-        button.setMinimumSize(new Dimension(SIDEBAR_WIDTH - 40, 30));
-        button.setPreferredSize(new Dimension(SIDEBAR_WIDTH - 40, 30));
-        button.setFocusPainted(false);
-        button.setForeground(Color.WHITE);
-        button.setBackground(new Color(70, 70, 70));
-        button.setBorderPainted(false);
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        button.getModel().addChangeListener(_ -> {
-            ButtonModel model = button.getModel();
-            if (model.isPressed()) {
-                button.setBackground(new Color(70, 90, 140));
-            } else if (model.isRollover()) {
-                button.setBackground(new Color(85, 85, 85)); // hover светлее
-            } else {
-                button.setBackground(new Color(70, 70, 70));
-            }
-        });
     }
 
     private LoadingPanel createLoadingPanel() {

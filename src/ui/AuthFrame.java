@@ -22,10 +22,10 @@ public class AuthFrame extends JFrame {
         );
 
         JPanel outerPanel = new JPanel(new GridBagLayout());
-        outerPanel.setBackground(new Color(30, 30, 30));
+        outerPanel.setBackground(UIStyle.HEADER_COLOR);
 
         JPanel formPanel = new JPanel();
-        formPanel.setBackground(new Color(45, 45, 45));
+        formPanel.setBackground(UIStyle.SIDE_BOX);
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setPreferredSize(new Dimension(300, 200));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -34,6 +34,8 @@ public class AuthFrame extends JFrame {
         loginLabel.setForeground(Color.WHITE);
         JTextField loginField = new JTextField(20);
         loginField.setMaximumSize(new Dimension(300, 30));
+
+
 
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setForeground(Color.WHITE);
@@ -48,11 +50,11 @@ public class AuthFrame extends JFrame {
         }
 
         authButton.setFocusPainted(false);
-        authButton.setBackground(new Color(70, 70, 70));
+        authButton.setBackground(UIStyle.BUTTON_BG);
         authButton.setForeground(Color.WHITE);
 
         switchModeButton.setFocusPainted(false);
-        switchModeButton.setBackground(new Color(60, 60, 60));
+        switchModeButton.setBackground(UIStyle.BORDER_COLOR);
         switchModeButton.setForeground(Color.LIGHT_GRAY);
 
         authButton.addActionListener(_ -> {
@@ -66,8 +68,10 @@ public class AuthFrame extends JFrame {
             if (isLoginMode) {
                 success = DB.checkLogin(login, password);
                 if (success) {
+                    String theme = DB.getTheme(login);
+                    UIStyle.applyTheme(theme);
                     new MainFrame(login);
-                    dispose();
+                    this.dispose();
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid login or password");
                 }

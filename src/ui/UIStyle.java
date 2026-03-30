@@ -6,14 +6,99 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 
 public class UIStyle {
-    public static final Color BG_COLOR = new Color(25, 25, 25);
-    public static final Color SECONDARY_BG = new Color(35, 35, 35);
-    public static final Color BUTTON_BG = new Color(40, 40, 40);
-    public static final Color BUTTON_HOVER = new Color(55, 55, 55);
-    public static final Color BUTTON_PRESSED = new Color(65, 65, 65);
-    public static final Color ACCENT_COLOR = new Color(100, 200, 100);
-    public static final Color TEXT_COLOR = Color.WHITE;
-    public static final Color BORDER_COLOR = new Color(60, 60, 60);
+    public static Color BG_COLOR = new Color(25, 25, 25);
+    public static Color HEADER_COLOR = new Color(30, 30, 30);
+    public static Color SECONDARY_BG = new Color(35, 35, 35);
+    public static Color BUTTON_BG = new Color(40, 40, 40);
+    public static Color SIDE_BOX = new Color(45, 45, 45);
+    public static Color BUTTON_HOVER = new Color(55, 55, 55);
+    public static Color BORDER_COLOR = new Color(60, 60, 60);
+    public static Color BUTTON_PRESSED = new Color(65, 65, 65);
+    public static Color PROGRESS_BAR = new Color(114, 99, 100);
+    public static Color COMPLETED_ACH = new Color(60, 120, 60);
+    public static Color ACCENT_COLOR = new Color(100, 200, 100);
+    public static Color XP_LABEL_COLOR = new Color(180, 255, 180);
+    public static Color TEXT_COLOR = Color.WHITE;
+
+    /**
+     * Применяет выбранную цветовую схему
+     */
+    public static void applyTheme(String themeName) {
+        switch (themeName) {
+            case "original_dark" -> {
+                BG_COLOR       = new Color(25, 25, 25);
+                HEADER_COLOR   = new Color(30, 30, 30);
+                SECONDARY_BG   = new Color(35, 35, 35);
+                BUTTON_BG      = new Color(40, 40, 40);
+                SIDE_BOX       = new Color(45, 45, 45);
+                BUTTON_HOVER   = new Color(55, 55, 55);
+                BORDER_COLOR   = new Color(60, 60, 60);
+                BUTTON_PRESSED = new Color(65, 65, 65);
+
+                PROGRESS_BAR   = new Color(114, 99, 100);
+
+                ACCENT_COLOR   = new Color(100, 200, 100);
+            }
+            case "midnight_blue" -> {
+                BG_COLOR       = new Color(12, 14, 20);
+                HEADER_COLOR   = new Color(18, 22, 30);
+                SECONDARY_BG   = new Color(24, 28, 40);
+                BUTTON_BG      = new Color(30, 38, 55);
+                SIDE_BOX       = new Color(35, 45, 65);
+                BORDER_COLOR   = new Color(50, 65, 90);
+                BUTTON_HOVER   = new Color(60, 80, 115);
+                BUTTON_PRESSED = new Color(80, 105, 145);
+
+                PROGRESS_BAR   = new Color(0, 162, 155);
+
+                ACCENT_COLOR   = new Color(0, 162, 255);
+            }
+            case "deep_forest" -> {
+                BG_COLOR       = new Color(15, 18, 15);
+                HEADER_COLOR   = new Color(22, 28, 22);
+                SECONDARY_BG   = new Color(28, 35, 28);
+                BUTTON_BG      = new Color(35, 45, 35);
+                SIDE_BOX       = new Color(40, 52, 40);
+                BORDER_COLOR   = new Color(55, 70, 55);
+                BUTTON_HOVER   = new Color(70, 90, 70);
+                BUTTON_PRESSED = new Color(85, 110, 85);
+
+                PROGRESS_BAR   = new Color(140, 155, 100);
+
+                ACCENT_COLOR   = new Color(140, 255, 100);
+            }
+            case "dracula" -> {
+                BG_COLOR       = new Color(40, 42, 54);
+                HEADER_COLOR   = new Color(33, 34, 44);
+                SECONDARY_BG   = new Color(40, 42, 54);
+                BUTTON_BG      = new Color(56, 58, 73);
+                SIDE_BOX       = new Color(68, 71, 90);
+                BORDER_COLOR   = new Color(98, 114, 164);
+                BUTTON_HOVER   = new Color(80, 85, 110);
+                BUTTON_PRESSED = new Color(100, 105, 130);
+
+                PROGRESS_BAR   = new Color(189, 147, 149);
+
+                ACCENT_COLOR   = new Color(189, 147, 249);
+            }
+            case "crimson_ember" -> {
+                BG_COLOR       = new Color(20, 15, 15);
+                HEADER_COLOR   = new Color(28, 20, 20);
+                SECONDARY_BG   = new Color(35, 25, 25);
+                BUTTON_BG      = new Color(45, 30, 30);
+                SIDE_BOX       = new Color(55, 35, 35);
+                BORDER_COLOR   = new Color(75, 45, 45);
+                BUTTON_HOVER   = new Color(95, 55, 55);
+                BUTTON_PRESSED = new Color(120, 65, 65);
+
+                PROGRESS_BAR   = new Color(155, 75, 75);
+
+                ACCENT_COLOR   = new Color(255, 75, 75);
+            }
+        }
+        BORDER_COLOR = SECONDARY_BG.brighter();
+        BUTTON_HOVER = BUTTON_BG.brighter();
+    }
 
     public static void styleButton(AbstractButton btn) {
         btn.setOpaque(true);
@@ -24,8 +109,10 @@ public class UIStyle {
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.getModel().addChangeListener(_ -> {
             ButtonModel m = btn.getModel();
-            if (m.isPressed()) btn.setBackground(BUTTON_PRESSED);
-            else if (m.isRollover()) btn.setBackground(BUTTON_HOVER);
+            if (m.isPressed())
+                btn.setBackground(BUTTON_PRESSED);
+            else if (m.isRollover())
+                btn.setBackground(BUTTON_HOVER);
             else btn.setBackground(BUTTON_BG);
         });
     }
@@ -39,10 +126,16 @@ public class UIStyle {
                 this.thumbColor = BUTTON_BG;
                 this.trackColor = BG_COLOR;
             }
-            @Override protected JButton createDecreaseButton(int orientation) { return createZeroButton(); }
-            @Override protected JButton createIncreaseButton(int orientation) { return createZeroButton(); }
+            @Override protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+            @Override protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
             private JButton createZeroButton() {
-                JButton b = new JButton(); b.setPreferredSize(new Dimension(0, 0)); return b;
+                JButton b = new JButton();
+                b.setPreferredSize(new Dimension(0, 0));
+                return b;
             }
             @Override
             protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
@@ -115,6 +208,55 @@ public class UIStyle {
             @Override
             protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
 
+            }
+        });
+    }
+
+    /**
+     * Стилизация основных кнопок категорий сайдбара (Photo & Video и т.д.)
+     */
+    public static void styleSidebarMainButton(JButton button, int sidebarWidth) {
+        button.setMaximumSize(new Dimension(sidebarWidth - 20, 40));
+        button.setPreferredSize(new Dimension(sidebarWidth - 20, 40));
+        button.setFocusPainted(false);
+        button.setForeground(TEXT_COLOR);
+        button.setBackground(BUTTON_BG);
+        button.setBorderPainted(false);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.getModel().addChangeListener(_ -> {
+            ButtonModel model = button.getModel();
+            if (model.isPressed()) {
+                button.setBackground(ACCENT_COLOR.darker());
+            } else if (model.isRollover()) {
+                button.setBackground(BUTTON_HOVER);
+            } else {
+                button.setBackground(BUTTON_BG);
+            }
+        });
+    }
+
+    /**
+     * Стилизация под-кнопок функций (Media Downloader, Timer и т.д.)
+     */
+    public static void styleSidebarSubButton(JButton button, int sidebarWidth) {
+        button.setMaximumSize(new Dimension(sidebarWidth - 40, 30));
+        button.setMinimumSize(new Dimension(sidebarWidth - 40, 30));
+        button.setPreferredSize(new Dimension(sidebarWidth - 40, 30));
+        button.setFocusPainted(false);
+        button.setForeground(TEXT_COLOR);
+        button.setBackground(BUTTON_BG);
+        button.setBorderPainted(false);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        button.getModel().addChangeListener(_ -> {
+            ButtonModel model = button.getModel();
+            if (model.isPressed()) {
+                button.setBackground(ACCENT_COLOR.darker());
+            } else if (model.isRollover()) {
+                button.setBackground(BUTTON_HOVER);
+            } else {
+                button.setBackground(BUTTON_BG);
             }
         });
     }

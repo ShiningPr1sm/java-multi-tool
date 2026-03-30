@@ -36,7 +36,7 @@ public class MediaDownloaderPanel extends JPanel {
 
     public MediaDownloaderPanel() {
         setLayout(new BorderLayout(10, 10));
-        setBackground(new Color(25, 25, 25));
+        setBackground(UIStyle.BG_COLOR);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         downloadFolder = new File(System.getProperty("user.home"), "Downloads/JavaVideoDownloader");
@@ -47,7 +47,7 @@ public class MediaDownloaderPanel extends JPanel {
 
     private void initUI() {
         JPanel centralPanel = new JPanel(new GridBagLayout());
-        centralPanel.setBackground(new Color(25, 25, 25));
+        centralPanel.setBackground(UIStyle.BG_COLOR);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
@@ -57,7 +57,7 @@ public class MediaDownloaderPanel extends JPanel {
         textArea = new JTextArea();
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
-        textArea.setBackground(new Color(35, 35, 35));
+        textArea.setBackground(UIStyle.SECONDARY_BG);
         textArea.setForeground(Color.GRAY);
         textArea.setCaretColor(Color.WHITE);
         textArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -80,7 +80,7 @@ public class MediaDownloaderPanel extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(textArea);
         scrollPane.setPreferredSize(new Dimension(650, 350)); // Фиксированная высота ввода
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
+        scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
         UIStyle.styleScrollBar(scrollPane);
         centralPanel.add(scrollPane, gbc);
 
@@ -88,14 +88,14 @@ public class MediaDownloaderPanel extends JPanel {
         progressBar = new JProgressBar(0, 100);
         progressBar.setStringPainted(true);
         progressBar.setPreferredSize(new Dimension(450, 25)); // Фиксированная высота бара
-        progressBar.setBackground(new Color(35, 35, 35));
-        progressBar.setForeground(new Color(100, 200, 100));
-        progressBar.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
+        progressBar.setBackground(UIStyle.SECONDARY_BG);
+        progressBar.setForeground(UIStyle.ACCENT_COLOR);
+        progressBar.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
         centralPanel.add(progressBar, gbc);
 
         // 3. Панель управления (Кнопки и выбор формата)
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        controls.setBackground(new Color(25, 25, 25));
+        controls.setBackground(UIStyle.BG_COLOR);
 
         formatBox = new JComboBox<>(new String[]{
                 "(dual) Video+Audio",
@@ -223,7 +223,7 @@ public class MediaDownloaderPanel extends JPanel {
 
     private void styleTabButton(JButton btn) {
         btn.setOpaque(true);
-        btn.setBackground(new Color(40, 40, 40));
+        btn.setBackground(UIStyle.BUTTON_BG);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false); // Убираем стандартную рамку
@@ -231,9 +231,12 @@ public class MediaDownloaderPanel extends JPanel {
 
         btn.getModel().addChangeListener(e -> {
             ButtonModel m = btn.getModel();
-            if (m.isPressed()) btn.setBackground(new Color(60, 60, 60));
-            else if (m.isRollover()) btn.setBackground(new Color(55, 55, 55));
-            else btn.setBackground(new Color(40, 40, 40));
+            if (m.isPressed())
+                btn.setBackground(UIStyle.BORDER_COLOR);
+            else if (m.isRollover())
+                btn.setBackground(UIStyle.BUTTON_HOVER);
+            else
+                btn.setBackground(UIStyle.BUTTON_BG);
         });
     }
 

@@ -1,6 +1,8 @@
 package ui;
 
 import db.DB;
+import ui.utils.AppLogger;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
@@ -19,7 +21,7 @@ public class WelcomePanel extends JPanel {
     private int lastWidth = -1;
     private int lastHeight = -1;
 
-    private int circleRadius = 140;
+    private final int circleRadius = 140;
     private int circleCenterX = 0;
     private int circleCenterY = 0;
 
@@ -50,13 +52,13 @@ public class WelcomePanel extends JPanel {
 
     public WelcomePanel(String login, double initialFadeSpeed) {
         suffix = ", " + DB.getNickname(login) + "!";
-        setBackground(new Color(25, 25, 25));
+        setBackground(UIStyle.BG_COLOR);
         this.fadeSpeed = Math.max(0.0, Math.min(1.0, initialFadeSpeed));
 
         loadFonts();
         resetAnimation();
 
-        timer = new Timer(40, e -> {
+        timer = new Timer(40, _ -> {
             stepAnimation();
             updateCaretAlpha();
             updateDots();
@@ -88,15 +90,12 @@ public class WelcomePanel extends JPanel {
 
             if (distSq > radiusSq) {
                 double dist = Math.sqrt(distSq);
-
-                // Нормализация вектора и возвращение на границу круга
                 double nx = dx / dist;
                 double ny = dy / dist;
 
                 p.x = (int) (circleCenterX + nx * (circleRadius - 1));
                 p.y = (int) (circleCenterY + ny * (circleRadius - 1));
 
-                // Переопределение направления внутрь
                 int dxNew, dyNew;
                 do {
                     dxNew = rnd.nextInt(3) - 1;
@@ -106,8 +105,6 @@ public class WelcomePanel extends JPanel {
                 dotVelocities.get(i).setLocation(dxNew, dyNew);
             }
         }
-
-        // Обновление фазы пульсации
         for (int i = 0; i < DOT_COUNT; i++) {
             dotPulsePhase[i] += 0.15;
             if (dotPulsePhase[i] > Math.PI * 2) {
@@ -134,7 +131,9 @@ public class WelcomePanel extends JPanel {
                 tmp[fonts.length] = custom;
                 fonts = tmp;
             }
-        } catch (Exception ignored) {
+            AppLogger.log("Minecraft FONT", "Successful loaded Minecraft font!");
+        } catch (Exception e) {
+            AppLogger.log("Minecraft FONT Error", e.getMessage());
         }
     }
 
@@ -273,7 +272,6 @@ public class WelcomePanel extends JPanel {
                 }
             }
         }
-
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         g2.dispose();
     }
@@ -281,7 +279,6 @@ public class WelcomePanel extends JPanel {
     private void initDots() {
         dotPositions.clear();
         dotVelocities.clear();
-
         for (int i = 0; i < DOT_COUNT; i++) {
             double angle = rnd.nextDouble() * 2 * Math.PI;
             double dist = rnd.nextDouble() * circleRadius;
@@ -295,10 +292,8 @@ public class WelcomePanel extends JPanel {
                 dy = rnd.nextInt(3) - 1;
             } while (dx == 0 && dy == 0);
             dotVelocities.add(new Point(dx, dy));
-
             dotPulsePhase[i] = rnd.nextDouble() * Math.PI * 2;
         }
-
         dotsInitialized = true;
     }
 }

@@ -16,7 +16,7 @@ public class LoadingPanel extends JPanel {
 
     public LoadingPanel() {
         setLayout(new BorderLayout());
-        setBackground(new Color(25, 25, 25));
+        setBackground(UIStyle.BG_COLOR);
 
         try {
             try {

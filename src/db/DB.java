@@ -19,7 +19,8 @@ public class DB {
                     nickname TEXT DEFAULT '',
                     reg_time TEXT DEFAULT CURRENT_TIMESTAMP,
                     last_login TEXT DEFAULT CURRENT_TIMESTAMP,
-                    save_login INTEGER DEFAULT 0
+                    save_login INTEGER DEFAULT 0,
+                    theme TEXT DEFAULT 'original_dark'
                 );
             """);
         } catch (SQLException e) {
@@ -201,8 +202,8 @@ public class DB {
     }
 
     /**
-     * Получает значение 1, если пользователь захотел автовход в программу.
-     * Если значение равно 0, то автовход будет выключен.
+     * Получает значение 1, если пользователь захотел авто-вход в программу.
+     * Если значение равно 0, то авто-вход будет выключен.
      */
     public static String getAutoLoginUser() {
         try (Connection conn = getConnection();
@@ -215,5 +216,31 @@ public class DB {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Установить тему для пользователя.
+     */
+    public static void setTheme(String login, String themeName) {
+        String sql = "UPDATE users SET theme = ? WHERE login = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, themeName);
+            ps.setString(2, login);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    /**
+     * Взять данные о теме пользователя с БД.
+     */
+    public static String getTheme(String login) {
+        String sql = "SELECT theme FROM users WHERE login = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, login);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return rs.getString("theme");
+        } catch (SQLException e) { e.printStackTrace(); }
+        return "original_dark";
     }
 }

@@ -1,6 +1,7 @@
 package db;
 
 import ui.MainFrame;
+import ui.utils.AppLogger;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ public class AchievementDB {
                 );
             """);
         } catch (SQLException e) {
-            e.printStackTrace();
+            AppLogger.log("Achievements initializeDatabase DB", e.getMessage());
         }
     }
 
@@ -72,7 +73,7 @@ public class AchievementDB {
             stmt.setString(3, description);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            AppLogger.error("AchievementDB.addAchievement (" + code + ") failed: " + e.getMessage());
         }
     }
 
@@ -90,7 +91,7 @@ public class AchievementDB {
             stmt.setInt(4, xpReward);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            AppLogger.log("Achievements DB", e.getMessage());
         }
     }
 

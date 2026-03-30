@@ -262,23 +262,23 @@ public class WorkflowPanel extends JPanel {
         UIStyle.styleScrollBar(sp);
 
         JPanel addForm = new JPanel(new GridBagLayout());
-        addForm.setBackground(new Color(30, 30, 30));
+        addForm.setBackground(UIStyle.HEADER_COLOR);
         addForm.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(2, 2, 2, 2);
 
         JTextField nameInp = new JTextField();
-        nameInp.setBackground(new Color(45, 45, 45));
+        nameInp.setBackground(UIStyle.SIDE_BOX);
         nameInp.setForeground(Color.WHITE);
         nameInp.setCaretColor(Color.WHITE);
-        nameInp.setBorder(BorderFactory.createLineBorder(new Color(60,60,60)));
+        nameInp.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
 
         JTextField descInp = new JTextField();
-        descInp.setBackground(new Color(45, 45, 45));
+        descInp.setBackground(UIStyle.SIDE_BOX);
         descInp.setForeground(Color.WHITE);
         descInp.setCaretColor(Color.WHITE);
-        descInp.setBorder(BorderFactory.createLineBorder(new Color(60,60,60)));
+        descInp.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
 
         JButton addBtn = new JButton("ADD NEW TASK");
         UIStyle.styleButton(addBtn);
@@ -459,7 +459,7 @@ public class WorkflowPanel extends JPanel {
         public TaskCard(int id, String name, String desc) {
             this.taskId = id;
             setLayout(new BorderLayout(10, 5));
-            setBackground(new Color(35, 35, 35));
+            setBackground(UIStyle.SECONDARY_BG);
             Color accent = (activeTaskId == id) ? Color.RED : new Color(194, 0, 255);
             setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(accent, 1),

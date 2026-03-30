@@ -35,11 +35,11 @@ public class BDaysNotifierPanel extends JPanel {
 
     public BDaysNotifierPanel() {
         setLayout(new BorderLayout());
-        setBackground(new Color(25, 25, 25));
+        setBackground(UIStyle.BG_COLOR);
 
         // Top panel
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        top.setBackground(new Color(25, 25, 25));
+        top.setBackground(UIStyle.BG_COLOR);
 
         // Mode selector
         modeSelector = new JComboBox<>(new String[]{"Upcoming", "List", "Reverse List"});
@@ -57,7 +57,7 @@ public class BDaysNotifierPanel extends JPanel {
 
         // Cards
         cards = new JPanel(new CardLayout());
-        cards.setBackground(new Color(25, 25, 25));
+        cards.setBackground(UIStyle.BG_COLOR);
         cards.add(createEditPanel(), EDIT_CARD);
         cards.add(createOverviewPanel(), OVERVIEW_CARD);
         add(cards, BorderLayout.CENTER);
@@ -97,7 +97,7 @@ public class BDaysNotifierPanel extends JPanel {
     private JPanel createEditPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setName(EDIT_CARD);
-        panel.setBackground(new Color(25, 25, 25));
+        panel.setBackground(UIStyle.BG_COLOR);
 
         // Table setup
         model = new DefaultTableModel(new String[]{"ID", "Name", "Birthday"}, 0) {
@@ -140,9 +140,9 @@ public class BDaysNotifierPanel extends JPanel {
         table.getColumnModel().getColumn(2).setPreferredWidth(150);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setFillsViewportHeight(true);
-        table.setBackground(new Color(25, 25, 25));
+        table.setBackground(UIStyle.BG_COLOR);
         table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(60, 60, 60));
+        table.setGridColor(UIStyle.BORDER_COLOR);
         table.setFont(table.getFont().deriveFont(15f));
 
         JTableHeader header = table.getTableHeader();
@@ -152,7 +152,7 @@ public class BDaysNotifierPanel extends JPanel {
                                                            boolean isSel, boolean hasFocus,
                                                            int row, int col) {
                 JLabel lbl = (JLabel) super.getTableCellRendererComponent(tbl, val, isSel, hasFocus, row, col);
-                lbl.setBackground(new Color(40, 40, 40));
+                lbl.setBackground(UIStyle.BUTTON_BG);
                 lbl.setForeground(Color.WHITE);
                 lbl.setHorizontalAlignment(SwingConstants.CENTER);
                 return lbl;
@@ -161,13 +161,13 @@ public class BDaysNotifierPanel extends JPanel {
         header.setOpaque(true);
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
-        scroll.getViewport().setBackground(new Color(25, 25, 25));
+        scroll.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
+        scroll.getViewport().setBackground(UIStyle.BG_COLOR);
         panel.add(scroll, BorderLayout.CENTER);
 
         // Form panel
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        form.setBackground(new Color(30, 30, 30));
+        form.setBackground(UIStyle.HEADER_COLOR);
         JTextField nameField = new JTextField(10);
         JTextField dateField = new JTextField(8);
         dateField.setToolTipText("Format: dd.MM.yyyy or dd.MM.xxxx");
@@ -225,19 +225,19 @@ public class BDaysNotifierPanel extends JPanel {
     private JPanel createOverviewPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setName(OVERVIEW_CARD);
-        panel.setBackground(new Color(25, 25, 25));
+        panel.setBackground(UIStyle.BG_COLOR);
 
         overviewContainer = new JPanel();
         overviewContainer.setLayout(new BoxLayout(overviewContainer, BoxLayout.Y_AXIS));
-        overviewContainer.setBackground(new Color(25, 25, 25));
+        overviewContainer.setBackground(UIStyle.BG_COLOR);
 
         overviewContainer.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
         JScrollPane sp = new JScrollPane(overviewContainer);
-        sp.setBackground(new Color(25, 25, 25));
+        sp.setBackground(UIStyle.BG_COLOR);
         sp.setBorder(null);
         sp.setViewportBorder(null);
-        sp.getViewport().setBackground(new Color(25, 25, 25));
+        sp.getViewport().setBackground(UIStyle.BG_COLOR);
         sp.getVerticalScrollBar().setUnitIncrement(20);
         styleScrollBar(sp);
         panel.add(sp, BorderLayout.CENTER);
@@ -250,8 +250,8 @@ public class BDaysNotifierPanel extends JPanel {
         vBar.setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
             @Override
             protected void configureScrollBarColors() {
-                this.thumbColor = new Color(60, 60, 60);
-                this.trackColor = new Color(25, 25, 25);
+                this.thumbColor = UIStyle.BORDER_COLOR;
+                this.trackColor = UIStyle.BG_COLOR;
             }
 
             @Override

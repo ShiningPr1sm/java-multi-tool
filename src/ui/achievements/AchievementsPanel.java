@@ -1,6 +1,7 @@
 package ui.achievements;
 
 import db.AchievementDB;
+import ui.UIStyle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,10 +14,10 @@ import java.util.Objects;
 public class AchievementsPanel extends JPanel {
     public AchievementsPanel(String login) {
         setLayout(new BorderLayout());
-        setBackground(new Color(25, 25, 25));
+        setBackground(UIStyle.BG_COLOR);
 
         JPanel grid = new JPanel(new GridLayout(0, 2, 20, 20));
-        grid.setBackground(new Color(25, 25, 25));
+        grid.setBackground(UIStyle.BG_COLOR);
         grid.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
         // XP для уровня берём из achievement_levels
@@ -83,7 +84,7 @@ public class AchievementsPanel extends JPanel {
         }
 
         JPanel container = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        container.setBackground(new Color(25, 25, 25));
+        container.setBackground(UIStyle.BG_COLOR);
         container.add(grid);
 
         JScrollPane scrollPane = new JScrollPane(container);
@@ -103,10 +104,10 @@ public class AchievementsPanel extends JPanel {
         card.setPreferredSize(new Dimension(380, 110));
         card.setMaximumSize(new Dimension(380, 110));
         boolean completed = progress >= max;
-        Color bg = completed ? new Color(60, 120, 60) : new Color(40, 40, 40);
+        Color bg = completed ? UIStyle.COMPLETED_ACH : UIStyle.BUTTON_BG;
         card.setBackground(bg);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(60, 60, 60), 1, true),
+                BorderFactory.createLineBorder(UIStyle.BORDER_COLOR, 1, true),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
         // Иконка
@@ -142,7 +143,7 @@ public class AchievementsPanel extends JPanel {
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 14f));
 
         JLabel xpLabel = new JLabel("+" + xpReward + " XP");
-        xpLabel.setForeground(new Color(180, 255, 180));
+        xpLabel.setForeground(UIStyle.XP_LABEL_COLOR);
         xpLabel.setFont(xpLabel.getFont().deriveFont(12f));
 
         JLabel descLabel = new JLabel(
@@ -159,7 +160,7 @@ public class AchievementsPanel extends JPanel {
         };
         progressBar.setValue(progress);
         progressBar.setStringPainted(true);
-        progressBar.setForeground(new Color(100, 150, 100));
+        progressBar.setForeground(UIStyle.PROGRESS_BAR);
         progressBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         info.add(titleLabel);
