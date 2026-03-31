@@ -9,15 +9,15 @@ import ui.daytab.BDaysNotifierPanel;
 import ui.daytab.WorkflowPanel;
 import ui.photovideotab.MediaDownloaderPanel;
 import ui.settings.SettingsPanel;
+import ui.utils.AppLogger;
 import ui.utils.AuthService;
+import ui.utils.TrayManager;
 
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Objects;
 import java.util.TimerTask;
@@ -33,15 +33,14 @@ public class MainFrame extends JFrame {
 
     private JLabel avatarLabel;
     private final String login;
-    private static String currentLogin;
     private JPanel contentPanel;
     private JLabel levelLabel;
     private JLabel xpPopupLabel;
     private final JLabel loginLabel = new JLabel("");
+    private TrayManager trayManager;
 
     public MainFrame(String login) {
         this.login = login;
-        currentLogin = login;
 
         LevelManager.initializeDatabase();
         LevelManager.ensureUserEntry(login);
@@ -51,12 +50,10 @@ public class MainFrame extends JFrame {
         setResizable(false);
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
+        addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
-                DB.updateLastLoginDate(login);
-                dispose();
-                System.exit(0);
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                handleClose();
             }
         });
 
@@ -82,6 +79,9 @@ public class MainFrame extends JFrame {
         contentPanel.add(welcomePanel, BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
+
+        this.trayManager = new TrayManager(this);
+        setVisible(true);
 
         setVisible(true);
     }
@@ -200,36 +200,7 @@ public class MainFrame extends JFrame {
         settingsBtn.setFocusPainted(false);
         settingsBtn.setBorderPainted(false);
         settingsBtn.setBackground(UIStyle.HEADER_COLOR);
-        settingsBtn.addActionListener(_ -> {
-            contentPanel.removeAll();
-
-            LoadingPanel loadingPanel = createLoadingPanel();
-            contentPanel.add(loadingPanel, BorderLayout.CENTER);
-            contentPanel.revalidate();
-            contentPanel.repaint();
-
-            new SwingWorker<SettingsPanel, Void>() {
-                @Override
-                protected SettingsPanel doInBackground() {
-                    return new SettingsPanel(MainFrame.this, login);
-                }
-
-                @Override
-                protected void done() {
-                    try {
-                        SettingsPanel settingsPanel = get();
-                        loadingPanel.fadeOut(() -> {
-                            contentPanel.removeAll();
-                            contentPanel.add(settingsPanel, BorderLayout.CENTER);
-                            contentPanel.revalidate();
-                            contentPanel.repaint();
-                        });
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }.execute();
-        });
+        settingsBtn.addActionListener(_ -> openSettings());
 
         JPanel rightBox = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 15));
         rightBox.setBackground(UIStyle.HEADER_COLOR);
@@ -244,39 +215,6 @@ public class MainFrame extends JFrame {
 
     public int getPercentOfAchievements(String login) {
         return (100/AchievementDB.getTotalAchievementsLevels()*AchievementDB.getTotalUserAchievementsLevels(login));
-    }
-
-    /**
-     * Начислить и показать анимацию опыта.
-     */
-    public void grantXP(String user, int amount) {
-        LevelManager.addXP(user, amount);
-        levelLabel.setText(buildLevelText(login));
-        xpPopupLabel.setText("+" + amount + " XP");
-        xpPopupLabel.setVisible(true);
-
-        new java.util.Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                SwingUtilities.invokeLater(() -> xpPopupLabel.setVisible(false));
-            }
-        }, 3000);
-    }
-
-    /**
-     * Просто показать анимацию опыта.
-     */
-    public void demoGrantXP(int amount) {
-        levelLabel.setText(buildLevelText(login));
-        xpPopupLabel.setText("+" + amount + " XP");
-        xpPopupLabel.setVisible(true);
-
-        new java.util.Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                SwingUtilities.invokeLater(() -> xpPopupLabel.setVisible(false));
-            }
-        }, 3000);
     }
 
     private JPanel createMainContent() {
@@ -334,29 +272,7 @@ public class MainFrame extends JFrame {
         for (String item : items) {
             JButton subBtn = new JButton(item);
             UIStyle.styleSidebarSubButton(subBtn, SIDEBAR_WIDTH);
-
-            subBtn.addActionListener(_ -> {
-                contentPanel.removeAll();
-                // |======================|
-                // |        КНОПКИ        |
-                // |======================|
-                if ("Media Downloader".equals(item)) {
-                    contentPanel.add(new MediaDownloaderPanel(), BorderLayout.CENTER);
-                }
-                if ("Workflow".equals(item)) {
-                    contentPanel.add(new WorkflowPanel(), BorderLayout.CENTER);
-                }
-                if ("BDays notifier".equals(item)) {
-                    contentPanel.add(new BDaysNotifierPanel(), BorderLayout.CENTER);
-                }
-                if ("Admin CMD".equals(item)) {
-                    contentPanel.add(new AdminLogPanel(), BorderLayout.CENTER);
-                }
-
-                contentPanel.revalidate();
-                contentPanel.repaint();
-            });
-
+            subBtn.addActionListener(_ -> openTab(item));
             subPanel.add(Box.createVerticalStrut(2));
             subPanel.add(subBtn);
         }
@@ -409,19 +325,141 @@ public class MainFrame extends JFrame {
         return new LoadingPanel();
     }
 
+    private String buildLevelText(String user) {
+        int lvl = LevelManager.getLevel(user);
+        int xp  = LevelManager.getXP(user);
+        return String.format("Level: %d (%d XP)", lvl, xp);
+    }
+
+    private String buildAchievementsText(String user) {
+        int total_achievements = AchievementDB.getTotalAchievementsLevels();
+        int tota_user_achievements  = AchievementDB.getTotalUserAchievementsLevels(user);
+        return String.format(
+                "Achievements: %d/%d (%d%%)",
+                tota_user_achievements,
+                total_achievements,
+                getPercentOfAchievements(user)
+        );
+    }
+
+    public void openSettings() {
+        contentPanel.removeAll();
+
+        LoadingPanel loadingPanel = createLoadingPanel();
+        contentPanel.add(loadingPanel, BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+
+        new SwingWorker<SettingsPanel, Void>() {
+            @Override
+            protected SettingsPanel doInBackground() {
+                return new SettingsPanel(MainFrame.this, login);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    SettingsPanel settingsPanel = get();
+                    loadingPanel.fadeOut(() -> {
+                        contentPanel.removeAll();
+                        contentPanel.add(settingsPanel, BorderLayout.CENTER);
+                        contentPanel.revalidate();
+                        contentPanel.repaint();
+                    });
+                } catch (Exception ex) {
+                    AppLogger.error("Failed to load Settings: " + ex.getMessage());
+                }
+            }
+        }.execute();
+    }
+
     /**
-     * Updates the avatar image in the header.
+     * Переключает центральную панель на выбранную вкладку.
+     * @param itemName Название вкладки (должно совпадать с названиями в сайдбаре!!!)
+     */
+    public void openTab(String itemName) {
+        contentPanel.removeAll();
+
+        switch (itemName) {
+            case "Media Downloader" ->
+                    contentPanel.add(new MediaDownloaderPanel(), BorderLayout.CENTER);
+            case "BDays notifier" ->
+                    contentPanel.add(new BDaysNotifierPanel(), BorderLayout.CENTER);
+            case "Workflow" ->
+                    contentPanel.add(new WorkflowPanel(), BorderLayout.CENTER);
+            case "Admin CMD" ->
+                    contentPanel.add(new AdminLogPanel(), BorderLayout.CENTER);
+            case "Settings" ->
+                    openSettings();
+            default ->
+                    AppLogger.error("Attempted to open unknown tab: " + itemName);
+        }
+
+        contentPanel.revalidate();
+        contentPanel.repaint();
+
+        AppLogger.info("Tab switched to: " + itemName);
+    }
+
+    /**
+     * Проверка значения close_to_tray в бд на выход с программы или минимизацию в трей.
+     */
+    private void handleClose() {
+        boolean trayEnabled = db.DB.isCloseToTrayEnabled(login);
+        AppLogger.info("Close clicked. Setting 'CloseToTray' is: " + trayEnabled);
+
+        if (trayEnabled) {
+            setVisible(false);
+            AppLogger.info("Application minimized to system tray.");
+        } else {
+            AppLogger.info("Exiting application...");
+            System.exit(0);
+        }
+    }
+
+    /**
+     * Начислить и показать анимацию опыта.
+     */
+    public void grantXP(String user, int amount) {
+        LevelManager.addXP(user, amount);
+        levelLabel.setText(buildLevelText(login));
+        xpPopupLabel.setText("+" + amount + " XP");
+        xpPopupLabel.setVisible(true);
+
+        new java.util.Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                SwingUtilities.invokeLater(() -> xpPopupLabel.setVisible(false));
+            }
+        }, 3000);
+    }
+
+    /**
+     * Просто показать анимацию опыта.
+     */
+    public void demoGrantXP(int amount) {
+        levelLabel.setText(buildLevelText(login));
+        xpPopupLabel.setText("+" + amount + " XP");
+        xpPopupLabel.setVisible(true);
+
+        new java.util.Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                SwingUtilities.invokeLater(() -> xpPopupLabel.setVisible(false));
+            }
+        }, 3000);
+    }
+
+    /**
+     * Обновить аватарку в хедере.
      */
     public void updateAvatarImage(ImageIcon newIcon) {
         avatarLabel.setIcon(newIcon);
     }
 
-    public static String loginValue() {
-        return currentLogin;
-    }
 
     /**
-     * Updates the nickname in the header.
+     * Обновить ник-нейм в хедере.
      */
     public void updateNickName(String nickname) {
         String roleColor = "#ffffff";
@@ -453,22 +491,5 @@ public class MainFrame extends JFrame {
                             + "</html>"
             );
         }
-    }
-
-    private String buildLevelText(String user) {
-        int lvl = LevelManager.getLevel(user);
-        int xp  = LevelManager.getXP(user);
-        return String.format("Level: %d (%d XP)", lvl, xp);
-    }
-
-    private String buildAchievementsText(String user) {
-        int total_achievements = AchievementDB.getTotalAchievementsLevels();
-        int tota_user_achievements  = AchievementDB.getTotalUserAchievementsLevels(user);
-        return String.format(
-                "Achievements: %d/%d (%d%%)",
-                tota_user_achievements,
-                total_achievements,
-                getPercentOfAchievements(user)
-        );
     }
 }

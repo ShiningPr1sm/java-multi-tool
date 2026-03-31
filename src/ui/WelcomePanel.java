@@ -131,9 +131,9 @@ public class WelcomePanel extends JPanel {
                 tmp[fonts.length] = custom;
                 fonts = tmp;
             }
-            AppLogger.log("Minecraft FONT", "Successful loaded Minecraft font!");
+            AppLogger.info("Successful loaded Minecraft font!");
         } catch (Exception e) {
-            AppLogger.log("Minecraft FONT Error", e.getMessage());
+            AppLogger.error("Minecraft FONT error:" + e.getMessage());
         }
     }
 

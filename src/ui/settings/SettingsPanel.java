@@ -5,6 +5,7 @@ import db.DB;
 import ui.AuthFrame;
 import ui.MainFrame;
 import ui.UIStyle;
+import ui.utils.AppLogger;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -151,6 +152,16 @@ public class SettingsPanel extends JPanel {
         saveLoginBox.addActionListener(_ -> DB.setSaveLogin(login, saveLoginBox.isSelected()));
         saveLoginBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        JCheckBox trayBox = new JCheckBox("Minimize to tray on close");
+        trayBox.setBackground(UIStyle.BG_COLOR);
+        trayBox.setForeground(Color.WHITE);
+        trayBox.setSelected(db.DB.isCloseToTrayEnabled(login));
+        trayBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        trayBox.addActionListener(_ -> {
+            db.DB.setCloseToTray(login, trayBox.isSelected());
+            AppLogger.info("Settings: Close to tray set to " + trayBox.isSelected());
+        });
+
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         logoutBtn.addActionListener(_ -> logout());
@@ -178,6 +189,8 @@ public class SettingsPanel extends JPanel {
         infoPanel.add(displayLabel);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(saveLoginBox);
+        infoPanel.add(Box.createVerticalStrut(2));
+        infoPanel.add(trayBox);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(logoutBtn);
         add(userInfoPanel);

@@ -1,6 +1,7 @@
 package ui.photovideotab;
 
 import ui.UIStyle;
+import ui.utils.AppLogger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +18,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class MediaDownloaderPanel extends JPanel {
-    // Константы путей
     private static final String APPDATA = System.getenv("APPDATA");
     private static final File YTDLP_DIR = new File(APPDATA, "yt-dlp-app");
     private static final File YTDLP_EXE = new File(YTDLP_DIR, "yt-dlp.exe");
@@ -40,8 +40,8 @@ public class MediaDownloaderPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         downloadFolder = new File(System.getProperty("user.home"), "Downloads/JavaVideoDownloader");
-        if (!downloadFolder.exists()) downloadFolder.mkdirs();
-
+        if (!downloadFolder.exists())
+            downloadFolder.mkdirs();
         initUI();
     }
 
@@ -84,7 +84,7 @@ public class MediaDownloaderPanel extends JPanel {
         UIStyle.styleScrollBar(scrollPane);
         centralPanel.add(scrollPane, gbc);
 
-        // 2. Прогресс-бар
+        // прогресс-бар
         progressBar = new JProgressBar(0, 100);
         progressBar.setStringPainted(true);
         progressBar.setPreferredSize(new Dimension(450, 25)); // Фиксированная высота бара
@@ -93,23 +93,23 @@ public class MediaDownloaderPanel extends JPanel {
         progressBar.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
         centralPanel.add(progressBar, gbc);
 
-        // 3. Панель управления (Кнопки и выбор формата)
+        // панель управления (кнопки и выбор формата)
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         controls.setBackground(UIStyle.BG_COLOR);
 
         formatBox = new JComboBox<>(new String[]{
                 "(dual) Video+Audio",
-                "TikTok/Insta/X",
-                "Video only",
-                "Audio Only"
+                "TikTok/Inst/X",
+                "Audio/YT music",
+                "Video only"
         });
         UIStyle.styleComboBox(formatBox);
         formatBox.setPreferredSize(new Dimension(150, 30));
 
         downloadButton = new JButton("Download");
-        styleTabButton(downloadButton); // ПРИМЕНЯЕМ ОБНОВЛЕННЫЙ СТИЛЬ
+        UIStyle.styleButton(downloadButton);
         downloadButton.setPreferredSize(new Dimension(120, 30));
-        downloadButton.addActionListener(e -> startDownloadTask());
+        downloadButton.addActionListener(_ -> startDownloadTask());
 
         browserComboBox = new JComboBox<>(new String[]{"None", "Firefox", "Chrome", "Edge", "Opera", "Brave"});
         UIStyle.styleComboBox(browserComboBox);
@@ -120,8 +120,6 @@ public class MediaDownloaderPanel extends JPanel {
         controls.add(browserComboBox);
 
         centralPanel.add(controls, gbc);
-
-        // Добавляем центральную панель в основной контейнер
         add(centralPanel, BorderLayout.CENTER);
     }
 
@@ -129,6 +127,7 @@ public class MediaDownloaderPanel extends JPanel {
         String input = textArea.getText().trim();
         if (input.isEmpty() || input.startsWith("Paste or Enter")) {
             JOptionPane.showMessageDialog(this, "Please enter at least one video URL!");
+            AppLogger.error("No video entered.");
             return;
         }
 
@@ -152,10 +151,11 @@ public class MediaDownloaderPanel extends JPanel {
                 SwingUtilities.invokeLater(() -> {
                     progressBar.setValue(100);
                     progressBar.setString("All downloads completed!");
+                    AppLogger.info("All downloads completed.");
                     downloadButton.setEnabled(true);
                 });
             } catch (Exception ex) {
-                ex.printStackTrace();
+                AppLogger.error("Video downloading error:" + ex.getMessage());
                 SwingUtilities.invokeLater(() -> {
                     downloadButton.setEnabled(true);
                     JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
@@ -171,21 +171,29 @@ public class MediaDownloaderPanel extends JPanel {
         command.add("ejs:github");
 
         switch (selectedFormat) {
-            case "(dual) Video+Audio/YT music" -> {
-                command.add("-f"); command.add("bestvideo[ext=mp4]+bestaudio[ext=m4a]");
-                command.add("--merge-output-format"); command.add("mp4");
-                command.add("--ffmpeg-location"); command.add(FFMPEG_EXE.getAbsolutePath());
+            case "(dual) Video+Audio" -> {
+                command.add("-f");
+                command.add("bestvideo[ext=mp4]+bestaudio[ext=m4a]");
+                command.add("--merge-output-format");
+                command.add("mp4");
+                command.add("--ffmpeg-location");
+                command.add(FFMPEG_EXE.getAbsolutePath());
             }
             case "Video only" -> {
-                command.add("-f"); command.add("bestvideo[ext=mp4]");
+                command.add("-f");
+                command.add("bestvideo[ext=mp4]");
             }
             case "Audio/YT music" -> {
-                command.add("-f"); command.add("bestaudio");
-                command.add("--extract-audio"); command.add("--audio-format"); command.add("mp3");
-                command.add("--ffmpeg-location"); command.add(FFMPEG_EXE.getAbsolutePath());
+                command.add("-f");
+                command.add("bestaudio");
+                command.add("--extract-audio");
+                command.add("--audio-format"); command.add("mp3");
+                command.add("--ffmpeg-location");
+                command.add(FFMPEG_EXE.getAbsolutePath());
             }
-            case "TikTok, Instagram, X.com" -> {
-                command.add("-f"); command.add("best[ext=mp4]");
+            case "TikTok/Inst/X" -> {
+                command.add("-f");
+                command.add("best[ext=mp4]");
             }
         }
 
@@ -194,8 +202,10 @@ public class MediaDownloaderPanel extends JPanel {
             command.add(browser);
         }
 
-        command.add("--impersonate"); command.add("chrome");
-        command.add("-o"); command.add(downloadFolder.getAbsolutePath() + "/%(title)s.%(ext)s");
+        command.add("--impersonate");
+        command.add("chrome");
+        command.add("-o");
+        command.add(downloadFolder.getAbsolutePath() + "/%(title)s.%(ext)s");
         command.add(videoUrl);
 
         ProcessBuilder pb = new ProcessBuilder(command);
@@ -219,35 +229,10 @@ public class MediaDownloaderPanel extends JPanel {
         process.waitFor();
     }
 
-    // --- МЕТОДЫ СТИЛИЗАЦИИ (копируем из BDaysNotifierPanel) ---
-
-    private void styleTabButton(JButton btn) {
-        btn.setOpaque(true);
-        btn.setBackground(UIStyle.BUTTON_BG);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false); // Убираем стандартную рамку
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-
-        btn.getModel().addChangeListener(e -> {
-            ButtonModel m = btn.getModel();
-            if (m.isPressed())
-                btn.setBackground(UIStyle.BORDER_COLOR);
-            else if (m.isRollover())
-                btn.setBackground(UIStyle.BUTTON_HOVER);
-            else
-                btn.setBackground(UIStyle.BUTTON_BG);
-        });
-    }
-
-    // --- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ СКАЧИВАНИЯ (yt-dlp / ffmpeg) ---
-    // (Оставляем твою логику без изменений, просто убираем static где не нужно)
-
     private void checkAndDownloadYTDLP() throws IOException, InterruptedException {
         if (!YTDLP_DIR.exists()) YTDLP_DIR.mkdirs();
         String latestVersion = getLatestYtDlpVersion();
         if (!YTDLP_EXE.exists() || latestVersion != null) {
-            // Здесь можно добавить проверку версий как в твоем коде
             try (InputStream in = new URL(YTDLP_URL).openStream();
                  FileOutputStream out = new FileOutputStream(YTDLP_EXE)) {
                 in.transferTo(out);

@@ -20,7 +20,8 @@ public class DB {
                     reg_time TEXT DEFAULT CURRENT_TIMESTAMP,
                     last_login TEXT DEFAULT CURRENT_TIMESTAMP,
                     save_login INTEGER DEFAULT 0,
-                    theme TEXT DEFAULT 'original_dark'
+                    theme TEXT DEFAULT 'original_dark',
+                    close_to_tray INTEGER DEFAULT 0
                 );
             """);
         } catch (SQLException e) {
@@ -242,5 +243,34 @@ public class DB {
                 return rs.getString("theme");
         } catch (SQLException e) { e.printStackTrace(); }
         return "original_dark";
+    }
+
+    /**
+     * Обновляет данные параметра close_to_tray для пользователя.
+     * @param login - логин пользователя.
+     * @param enabled - статус.
+     */
+    public static void setCloseToTray(String login, boolean enabled) {
+        String sql = "UPDATE users SET close_to_tray = ? WHERE login = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, enabled ? 1 : 0);
+            ps.setString(2, login);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    /**
+     * Проверяет значение установленное в колонке параметра close_to_tray у пользователя.
+     * @param login - логин пользователя.
+     * @return - статусное значение.
+     */
+    public static boolean isCloseToTrayEnabled(String login) {
+        String sql = "SELECT close_to_tray FROM users WHERE login = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, login);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) == 1;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
     }
 }
