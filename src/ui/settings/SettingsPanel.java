@@ -5,6 +5,7 @@ import db.DB;
 import ui.AuthFrame;
 import ui.MainFrame;
 import ui.UIStyle;
+import ui.utils.AppLogger;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -26,11 +27,11 @@ public class SettingsPanel extends JPanel {
 
     public SettingsPanel(MainFrame mainFrame, String login) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(new Color(25, 25, 25));
+        setBackground(UIStyle.BG_COLOR);
         setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
         JPanel userInfoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 30, 0));
-        userInfoPanel.setBackground(new Color(25, 25, 25));
+        userInfoPanel.setBackground(UIStyle.BG_COLOR);
         userInfoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel avatarLabel = new JLabel();
@@ -46,7 +47,7 @@ public class SettingsPanel extends JPanel {
 
         JPanel avatarBox = new JPanel();
         avatarBox.setLayout(new BoxLayout(avatarBox, BoxLayout.Y_AXIS));
-        avatarBox.setBackground(new Color(25, 25, 25));
+        avatarBox.setBackground(UIStyle.BG_COLOR);
         avatarBox.add(avatarLabel);
         avatarBox.add(Box.createVerticalStrut(10));
         avatarBox.add(changeAvatarBtn);
@@ -65,16 +66,35 @@ public class SettingsPanel extends JPanel {
         changePasswordBtn.addActionListener(_ -> openChangePasswordDialog(login));
         UIStyle.styleButton(changePasswordBtn);
 
+        String[] themes = {"original_dark", "midnight_blue", "deep_forest", "crimson_ember", "dracula"};
+        JComboBox<String> themeBox = new JComboBox<>(themes);
+        UIStyle.styleComboBox(themeBox);
+        themeBox.setSelectedItem(DB.getTheme(login));
+        themeBox.addActionListener(e -> {
+            String selected = (String) themeBox.getSelectedItem();
+            DB.setTheme(login, selected);
+            UIStyle.applyTheme(selected);
+            JOptionPane.showMessageDialog(this, "Theme applied! Please switch tabs to see changes.");
+        });
+
+        nicknameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        nicknameField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        saveNicknameBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        changePasswordBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        themeBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         JPanel nicknameBox = new JPanel();
         nicknameBox.setLayout(new BoxLayout(nicknameBox, BoxLayout.Y_AXIS));
-        nicknameBox.setBackground(new Color(25, 25, 25));
+        nicknameBox.setBackground(UIStyle.BG_COLOR);
         nicknameBox.add(nicknameLabel);
-        nicknameBox.add(Box.createVerticalStrut(5));
+        nicknameBox.add(Box.createVerticalStrut(10));
         nicknameBox.add(nicknameField);
         nicknameBox.add(Box.createVerticalStrut(10));
         nicknameBox.add(saveNicknameBtn);
         nicknameBox.add(Box.createVerticalStrut(10));
         nicknameBox.add(changePasswordBtn);
+        nicknameBox.add(Box.createVerticalStrut(15));
+        nicknameBox.add(themeBox);
 
         userInfoPanel.add(avatarBox);
         userInfoPanel.add(nicknameBox);
@@ -126,11 +146,21 @@ public class SettingsPanel extends JPanel {
         displayLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JCheckBox saveLoginBox = new JCheckBox("Save data after first login");
-        saveLoginBox.setBackground(new Color(25, 25, 25));
+        saveLoginBox.setBackground(UIStyle.BG_COLOR);
         saveLoginBox.setForeground(Color.WHITE);
         saveLoginBox.setSelected(DB.isSaveLoginEnabled(login));
         saveLoginBox.addActionListener(_ -> DB.setSaveLogin(login, saveLoginBox.isSelected()));
         saveLoginBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JCheckBox trayBox = new JCheckBox("Minimize to tray on close");
+        trayBox.setBackground(UIStyle.BG_COLOR);
+        trayBox.setForeground(Color.WHITE);
+        trayBox.setSelected(db.DB.isCloseToTrayEnabled(login));
+        trayBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        trayBox.addActionListener(_ -> {
+            db.DB.setCloseToTray(login, trayBox.isSelected());
+            AppLogger.info("Settings: Close to tray set to " + trayBox.isSelected());
+        });
 
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -139,7 +169,7 @@ public class SettingsPanel extends JPanel {
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setBackground(new Color(25, 25, 25));
+        infoPanel.setBackground(UIStyle.BG_COLOR);
         infoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         infoPanel.add(Box.createVerticalStrut(5));
         infoPanel.add(publicIpBtn);
@@ -159,9 +189,10 @@ public class SettingsPanel extends JPanel {
         infoPanel.add(displayLabel);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(saveLoginBox);
+        infoPanel.add(Box.createVerticalStrut(2));
+        infoPanel.add(trayBox);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(logoutBtn);
-
         add(userInfoPanel);
         add(infoPanel);
     }
@@ -202,7 +233,7 @@ public class SettingsPanel extends JPanel {
     private void updateNickname(MainFrame mainFrame, String login, String nickname) {
         if (!nickname.isEmpty()) {
             try (Connection conn = DB.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement("UPDATE users SET nickname = ? WHERE login = ?")) {
+                PreparedStatement stmt = conn.prepareStatement("UPDATE users SET nickname = ? WHERE login = ?")) {
                 stmt.setString(1, nickname);
                 stmt.setString(2, login);
                 stmt.executeUpdate();

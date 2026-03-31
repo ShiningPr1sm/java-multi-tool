@@ -18,25 +18,19 @@ public class DB {
                     password TEXT NOT NULL,
                     nickname TEXT DEFAULT '',
                     reg_time TEXT DEFAULT CURRENT_TIMESTAMP,
-                    last_login TEXT DEFAULT CURRENT_TIMESTAMP
+                    last_login TEXT DEFAULT CURRENT_TIMESTAMP,
+                    save_login INTEGER DEFAULT 0,
+                    theme TEXT DEFAULT 'original_dark',
+                    close_to_tray INTEGER DEFAULT 0
                 );
             """);
-
-            // Добавляем недостающие поля, если таблица уже существовала
-            try (Statement alterStmt = conn.createStatement()) {
-                alterStmt.execute("ALTER TABLE users ADD COLUMN achievements INTEGER DEFAULT 0;");
-            } catch (SQLException ignored) {}
-
-            try (Statement alterStmt = conn.createStatement()) {
-                alterStmt.execute("ALTER TABLE users ADD COLUMN save_login INTEGER DEFAULT 0;");
-            } catch (SQLException ignored) {}
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     *Регистрирует нового пользователя в системе.
+     * Регистрирует нового пользователя в системе.
      */
     public static boolean register(String login, String password) {
         try (Connection conn = getConnection();
@@ -52,7 +46,7 @@ public class DB {
     }
 
     /**
-     *Запрос к БД на возврат логина и пароля.
+     * Запрос к БД на возврат логина и пароля.
      */
     public static boolean checkLogin(String login, String password) {
         try (Connection conn = getConnection();
@@ -68,7 +62,7 @@ public class DB {
     }
 
     /**
-     *Возвращает значение ник-нейма пользователя.
+     * Возвращает значение ник-нейма пользователя.
      */
     public static String getNickname(String login) {
         try (Connection conn = getConnection();
@@ -85,7 +79,7 @@ public class DB {
     }
 
     /**
-     *Запрос на смену значения для авто-входа.
+     * Запрос на смену значения для авто-входа.
      */
     public static void setSaveLogin(String login, boolean enabled) {
         try (Connection conn = getConnection();
@@ -99,7 +93,7 @@ public class DB {
     }
 
     /**
-     *Запрос к БД для проверки значения для авто-входа.
+     * Запрос к БД для проверки значения для авто-входа.
      */
     public static boolean isSaveLoginEnabled(String login) {
         try (Connection conn = getConnection();
@@ -116,7 +110,7 @@ public class DB {
     }
 
     /**
-     *Запрос к БД для проверки пароля пользователя.
+     * Запрос к БД для проверки пароля пользователя.
      */
     public static boolean checkPassword(String login, String password) {
         try (Connection conn = getConnection();
@@ -134,7 +128,7 @@ public class DB {
     }
 
     /**
-     *Обновление пароля пользователя.
+     * Обновление пароля пользователя.
      */
     public static void updatePassword(String login, String newPassword) {
         try (Connection conn = getConnection();
@@ -148,7 +142,7 @@ public class DB {
     }
 
     /**
-     *Возвращает дату регистрации пользователя.
+     * Возвращает дату регистрации пользователя.
      */
     public static String getRegistrationDate(String login) {
         try (Connection conn = getConnection();
@@ -209,8 +203,8 @@ public class DB {
     }
 
     /**
-     * Получает значение 1, если пользователь захотел автовход в программу.
-     * Если значение равно 0, то автовход будет выключен.
+     * Получает значение 1, если пользователь захотел авто-вход в программу.
+     * Если значение равно 0, то авто-вход будет выключен.
      */
     public static String getAutoLoginUser() {
         try (Connection conn = getConnection();
@@ -223,5 +217,60 @@ public class DB {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Установить тему для пользователя.
+     */
+    public static void setTheme(String login, String themeName) {
+        String sql = "UPDATE users SET theme = ? WHERE login = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, themeName);
+            ps.setString(2, login);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    /**
+     * Взять данные о теме пользователя с БД.
+     */
+    public static String getTheme(String login) {
+        String sql = "SELECT theme FROM users WHERE login = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, login);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return rs.getString("theme");
+        } catch (SQLException e) { e.printStackTrace(); }
+        return "original_dark";
+    }
+
+    /**
+     * Обновляет данные параметра close_to_tray для пользователя.
+     * @param login - логин пользователя.
+     * @param enabled - статус.
+     */
+    public static void setCloseToTray(String login, boolean enabled) {
+        String sql = "UPDATE users SET close_to_tray = ? WHERE login = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, enabled ? 1 : 0);
+            ps.setString(2, login);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    /**
+     * Проверяет значение установленное в колонке параметра close_to_tray у пользователя.
+     * @param login - логин пользователя.
+     * @return - статусное значение.
+     */
+    public static boolean isCloseToTrayEnabled(String login) {
+        String sql = "SELECT close_to_tray FROM users WHERE login = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, login);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) == 1;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
     }
 }

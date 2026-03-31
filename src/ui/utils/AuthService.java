@@ -48,9 +48,15 @@ public class AuthService {
         }
     }
 
-    public static Role getRole() { return currentRole; }
-    public static boolean isAdmin() { return currentRole == Role.ADMIN; }
-    public static boolean isTester() { return currentRole == Role.TESTER || currentRole == Role.ADMIN; }
+    public static Role getRole() {
+        return currentRole;
+    }
+    public static boolean isAdmin() {
+        return currentRole == Role.ADMIN;
+    }
+    public static boolean isTester() {
+        return currentRole == Role.TESTER || currentRole == Role.ADMIN;
+    }
 
     public static String hash(String input) throws Exception {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");

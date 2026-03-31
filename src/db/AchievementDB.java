@@ -1,6 +1,7 @@
 package db;
 
 import ui.MainFrame;
+import ui.utils.AppLogger;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ public class AchievementDB {
                 );
             """);
         } catch (SQLException e) {
-            e.printStackTrace();
+            AppLogger.log("Achievements initializeDatabase DB", e.getMessage());
         }
     }
 
@@ -72,7 +73,7 @@ public class AchievementDB {
             stmt.setString(3, description);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            AppLogger.error("AchievementDB.addAchievement (" + code + ") failed: " + e.getMessage());
         }
     }
 
@@ -90,12 +91,12 @@ public class AchievementDB {
             stmt.setInt(4, xpReward);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            AppLogger.log("Achievements DB", e.getMessage());
         }
     }
 
     /**
-     *Выборка ачивки по её коду и возвращает максимальный уровень ачивки.
+     * Выборка ачивки по её коду и возвращает максимальный уровень ачивки.
      */
     public static int getMaxAchievementLevel(String code) {
         String sql = "SELECT MAX(level) FROM achievement_levels WHERE achievement_code = ?";
@@ -134,11 +135,10 @@ public class AchievementDB {
      * Берет все выполненные ачивки пользователя и возвращает число.
      */
     public static int getTotalUserAchievementsLevels(String login) {
-        String sql = "SELECT COUNT(*) FROM user_achievements WHERE user_login = ? AND level = ?";
+        String sql = "SELECT COUNT(*) FROM user_achievements WHERE user_login = ? AND level > 1";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, login);
-            stmt.setString(2, "1");
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -160,20 +160,23 @@ public class AchievementDB {
         level: n - ачивка на n+1 раз чтобы была выполнена.
          */
 
-        addAchievement("first_login", "I am new here!", "Log into the application for the first time");
-        addAchievementLevel("first_login", 0, 1, 20);
+        addAchievement("first_login", "I am new here!", "Log into the application for the first time.");
+        addAchievementLevel("first_login", 1, 1, 20);
 
-        addAchievement("change_nickname", "New name - new Me!", "Change your nickname");
-        addAchievementLevel("change_nickname", 0, 1, 30);
+        addAchievement("change_nickname", "New name - new Me!", "Change your nickname.");
+        addAchievementLevel("change_nickname", 1, 1, 30);
 
-        addAchievement("reach_10lvl", "King of XP", "Reach lvl 10");
-        addAchievementLevel("reach_10lvl", 0, 1, 100);
+        addAchievement("reach_10lvl", "King of XP", "Reach lvl 10.");
+        addAchievementLevel("reach_10lvl", 1, 1, 100);
 
-        addAchievement("first_steps", "Now I know all", "Add your first note");
-        addAchievementLevel("first_steps", 0, 1, 20);
+        addAchievement("first_steps", "Now I know all", "Add your first note.");
+        addAchievementLevel("first_steps", 1, 1, 20);
 
-        addAchievement("timer_sec", "Dr. Stephen Vincent Strange", "Start a timer");
-        addAchievementLevel("timer_sec", 0, 1, 20);
+        addAchievement("timer_sec", "Dr. Stephen Vincent Strange", "Start a timer.");
+        addAchievementLevel("timer_sec", 1, 1, 20);
+
+        addAchievement("real_friend", "You are a real friend..", "Add your first date to BDays notifier.");
+        addAchievementLevel("real_friend", 1, 1, 25);
     }
 
     /**
