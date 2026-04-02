@@ -18,7 +18,7 @@ public class WorkflowService {
             while (isRunning) {
                 try {
                     runTrackingCycle();
-                    Thread.sleep(5000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     break;
                 }

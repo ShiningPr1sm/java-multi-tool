@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -38,6 +39,18 @@ public class WorkflowPanel extends JPanel {
         tabs.addTab(" Edit ", createEditUI());
 
         add(tabs, BorderLayout.CENTER);
+
+        Timer uiRefreshTimer = new Timer(1000, _ -> {
+            loadDataFromDB();
+            if (taskContainer != null) {
+                for (Component c : taskContainer.getComponents()) {
+                    if (c instanceof TaskCard card) {
+                        card.updateTime();
+                    }
+                }
+            }
+        });
+        uiRefreshTimer.start();
 
         loadDataFromDB();
         loadTasksFromDB();
@@ -329,12 +342,17 @@ public class WorkflowPanel extends JPanel {
         if (appList == null) return;
         int lastSelected = appList.getSelectedIndex();
         appListModel.clear();
-        for (Object[] app : WorkflowDB.getTrackedAppsFull()) {
-            int sec = WorkflowDB.getSecondsToday((int)app[0], 0);
-            appListModel.addElement(app[1] + "  [" + formatSeconds(sec) + "]");
+        List<Object[]> apps = WorkflowDB.getTrackedAppsFull();
+        for (Object[] app : apps) {
+            int id = (int) app[0];
+            String prettyName = (String) app[1];
+            // Берем время, которое записал WorkflowService
+            int sec = WorkflowDB.getSecondsToday(id, 0);
+            appListModel.addElement(prettyName + "  [" + formatSeconds(sec) + "]");
         }
-        if (lastSelected != -1 && lastSelected < appListModel.size())
+        if (lastSelected != -1 && lastSelected < appListModel.size()) {
             appList.setSelectedIndex(lastSelected);
+        }
     }
 
     private void refreshDateSelector() {
@@ -474,7 +492,14 @@ public class WorkflowPanel extends JPanel {
         }
 
         public void updateTime() {
-            timeLabel.setText("Time: " + formatSeconds(WorkflowDB.getSecondsToday(taskId, 1)));
+            int freshSeconds = WorkflowDB.getSecondsToday(this.taskId, 1);
+            timeLabel.setText("Time: " + formatSeconds(freshSeconds));
+            int activeId = WorkflowService.getActiveTaskId();
+            Color accent = (activeId == taskId) ? Color.RED : new Color(194, 0, 255);
+            this.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(accent, 1),
+                    BorderFactory.createEmptyBorder(10, 15, 10, 15)
+            ));
         }
     }
 }

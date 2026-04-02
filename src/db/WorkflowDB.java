@@ -1,5 +1,7 @@
 package db;
 
+import ui.utils.AppLogger;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
@@ -93,16 +95,17 @@ public class WorkflowDB {
     }
 
     public static int getSecondsToday(int itemId, int type) {
-        String sql = "SELECT seconds_spent FROM daily_stats WHERE date = ? AND item_id = ? AND type = ?";
+        String sql = "SELECT SUM(seconds_spent) FROM daily_stats WHERE date = ? AND item_id = ? AND type = ?";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, LocalDate.now().toString());
             pstmt.setInt(2, itemId);
             pstmt.setInt(3, type);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next())
+            if (rs.next()) {
                 return rs.getInt(1);
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            AppLogger.error("DB Error in getSecondsToday: " + e.getMessage());
         }
         return 0;
     }
