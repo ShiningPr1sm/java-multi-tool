@@ -70,7 +70,7 @@ public class UIStyle {
             case "dracula" -> {
                 BG_COLOR       = new Color(40, 42, 54);
                 HEADER_COLOR   = new Color(33, 34, 44);
-                SECONDARY_BG   = new Color(40, 42, 54);
+                SECONDARY_BG   = new Color(55, 55, 65);
                 BUTTON_BG      = new Color(56, 58, 73);
                 SIDE_BOX       = new Color(68, 71, 90);
                 BORDER_COLOR   = new Color(98, 114, 164);
