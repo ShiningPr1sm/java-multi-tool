@@ -12,6 +12,7 @@ import ui.settings.SettingsPanel;
 import ui.utils.AppLogger;
 import ui.utils.AuthService;
 import ui.utils.TrayManager;
+import ui.utils.WorkflowService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -80,9 +81,9 @@ public class MainFrame extends JFrame {
         contentPanel.revalidate();
         contentPanel.repaint();
 
-        this.trayManager = new TrayManager(this);
-        setVisible(true);
+        WorkflowService.startTracking();
 
+        this.trayManager = new TrayManager(this);
         setVisible(true);
     }
 

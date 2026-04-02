@@ -2,8 +2,10 @@ package ui.daytab;
 
 import db.WorkflowDB;
 import ui.UIStyle;
+import ui.utils.AppLogger;
 import ui.utils.BarChartPanel;
 import ui.utils.PieChartPanel;
+import ui.utils.WorkflowService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,21 +14,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
-import javax.swing.Timer;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 public class WorkflowPanel extends JPanel {
-    private int activeTaskId = -1;
-    private String activeTaskName = null;
-
     private DefaultListModel<String> appListModel;
     private JList<String> appList;
-    private long lastTickTime = System.currentTimeMillis();
-
     private JPanel taskContainer;
-
     private JComboBox<String> dateSelector;
     private PieChartPanel pieChart;
     private BarChartPanel hourChart, weekChart, monthChart;
@@ -43,9 +38,6 @@ public class WorkflowPanel extends JPanel {
         tabs.addTab(" Edit ", createEditUI());
 
         add(tabs, BorderLayout.CENTER);
-
-        Timer globalTimer = new Timer(5000, _ -> runTrackingCycle());
-        globalTimer.start();
 
         loadDataFromDB();
         loadTasksFromDB();
@@ -311,44 +303,13 @@ public class WorkflowPanel extends JPanel {
         return panel;
     }
 
-    private void runTrackingCycle() {
-        long currentTime = System.currentTimeMillis();
-        int secondsSinceLastTick = (int) ((currentTime - lastTickTime) / 1000);
-        lastTickTime = currentTime;
-        if (secondsSinceLastTick <= 0) return;
-
-        List<Object[]> appsToTrack = WorkflowDB.getTrackedAppsFull();
-        java.util.Set<String> runningExes = ProcessHandle.allProcesses()
-                .map(ph -> ph.info().command().orElse(""))
-                .filter(cmd -> !cmd.isEmpty())
-                .map(cmd -> new File(cmd).getName().toLowerCase())
-                .collect(java.util.stream.Collectors.toSet());
-        boolean anyAppFound = false;
-        for (Object[] app : appsToTrack) {
-            if (runningExes.contains(((String)app[2]).toLowerCase().trim())) {
-                WorkflowDB.addTime((int)app[0], 0, secondsSinceLastTick);
-                anyAppFound = true;
-            }
-        }
-
-        if (activeTaskId != -1) {
-            WorkflowDB.addTime(activeTaskId, 1, secondsSinceLastTick);
-            for (Component c : taskContainer.getComponents()) {
-                if (c instanceof TaskCard card && card.taskId == activeTaskId)
-                    card.updateTime();
-            }
-        }
-        if (anyAppFound)
-            SwingUtilities.invokeLater(this::loadDataFromDB);
-    }
-
     private void toggleTask(int id, String name) {
-        if (activeTaskId == id) {
-            activeTaskId = -1;
-            activeTaskName = null;
+        if (WorkflowService.getActiveTaskId() == id) {
+            WorkflowService.setActiveTaskId(-1);
+            AppLogger.info("Task stopped: " + name);
         } else {
-            activeTaskId = id;
-            activeTaskName = name;
+            WorkflowService.setActiveTaskId(id);
+            AppLogger.info("Task started: " + name);
         }
         loadTasksFromDB();
     }
@@ -460,7 +421,9 @@ public class WorkflowPanel extends JPanel {
             this.taskId = id;
             setLayout(new BorderLayout(10, 5));
             setBackground(UIStyle.SECONDARY_BG);
-            Color accent = (activeTaskId == id) ? Color.RED : new Color(194, 0, 255);
+
+            int currentActiveId = WorkflowService.getActiveTaskId();
+            Color accent = (currentActiveId == id) ? Color.RED : new Color(194, 0, 255);
             setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(accent, 1),
                     BorderFactory.createEmptyBorder(10, 15, 10, 15)
@@ -486,9 +449,9 @@ public class WorkflowPanel extends JPanel {
             timeLabel.setForeground(Color.WHITE);
             timeLabel.setFont(new Font("Monospaced", Font.BOLD, 12));
 
-            JButton startBtn = new JButton(activeTaskId == id ? "STOP" : "START");
+            JButton startBtn = new JButton(currentActiveId == id ? "STOP" : "START");
             UIStyle.styleButton(startBtn);
-            if (activeTaskId == id)
+            if (currentActiveId == id)
                 startBtn.setForeground(Color.RED);
             startBtn.addActionListener(_ -> toggleTask(id, name));
 
@@ -496,7 +459,7 @@ public class WorkflowPanel extends JPanel {
             UIStyle.styleButton(delBtn);
             delBtn.setForeground(Color.GRAY);
             delBtn.addActionListener(_ -> {
-                if (activeTaskId == id) return;
+                if (currentActiveId == id) return;
                 WorkflowDB.deleteTask(id); loadTasksFromDB();
             });
 
