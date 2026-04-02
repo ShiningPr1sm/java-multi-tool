@@ -20,6 +20,7 @@ import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,7 +48,7 @@ public class MainFrame extends JFrame {
         LevelManager.ensureUserEntry(login);
 
         setTitle("MultiTool - Welcome, " + DB.getNickname(login) + "!");
-
+        setAppIcon();
         setResizable(false);
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -491,6 +492,23 @@ public class MainFrame extends JFrame {
                             + DB.getNickname(login)
                             + "</html>"
             );
+        }
+    }
+
+    private void setAppIcon() {
+        try {
+            java.net.URL iconUrl = getClass().getResource("/project_icon.png");
+            if (iconUrl == null) return;
+            Image sourceImage = new ImageIcon(iconUrl).getImage();
+            java.util.List<Image> images = new java.util.ArrayList<>();
+
+            int[] sizes = {16, 32, 64, 128};
+            for (int size : sizes) {
+                images.add(sourceImage.getScaledInstance(size, size, Image.SCALE_SMOOTH));
+            }
+            this.setIconImages(images);
+        } catch (Exception e) {
+            ui.utils.AppLogger.error("Failed to set app icons: " + e.getMessage());
         }
     }
 }
