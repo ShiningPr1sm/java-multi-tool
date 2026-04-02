@@ -23,9 +23,41 @@ import java.sql.PreparedStatement;
 import java.util.Scanner;
 
 public class SettingsPanel extends JPanel {
+
+    private static String cachedPublicIP = null;
+    private static String cachedLocalIP = null;
+    private static String cachedMac = null;
+    private static String cachedOs = null;
+    private static String cachedCpu = null;
+    private static String cachedDisplay = null;
+
+    private static boolean isInfoLoaded = false;
+
     private static final File AVATAR_FILE = new File(System.getProperty("user.home") + "/Documents/MultiTool-Java-data/avatar.png");
 
+    public static void prepareSystemInfo() {
+        if (isInfoLoaded) return;
+        isInfoLoaded = true;
+
+        new Thread(() -> {
+            try {
+                cachedPublicIP = fetchPublicIP();
+                cachedLocalIP = fetchLocalIp();
+                cachedMac = fetchMac();
+                cachedOs = System.getProperty("os.name") + " " + System.getProperty("os.version");
+                cachedCpu = System.getenv("PROCESSOR_IDENTIFIER");
+                cachedDisplay = Toolkit.getDefaultToolkit().getScreenSize().width + "x" + Toolkit.getDefaultToolkit().getScreenSize().height;
+
+                AppLogger.info("System info cached successfully.");
+            } catch (Exception e) {
+                AppLogger.error("Failed to cache system info: " + e.getMessage());
+            }
+        }).start();
+    }
+
     public SettingsPanel(MainFrame mainFrame, String login) {
+        prepareSystemInfo();
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIStyle.BG_COLOR);
         setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
@@ -99,7 +131,6 @@ public class SettingsPanel extends JPanel {
         userInfoPanel.add(avatarBox);
         userInfoPanel.add(nicknameBox);
 
-        String realPublicIP = getPublicIP();
         JButton publicIpBtn = new JButton("Public IP: ***.***.***.***");
         publicIpBtn.setForeground(Color.WHITE);
         publicIpBtn.setFont(UIManager.getFont("Label.font"));
@@ -111,17 +142,18 @@ public class SettingsPanel extends JPanel {
         publicIpBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         publicIpBtn.addActionListener(_ -> {
             if (publicIpBtn.getText().contains("***")) {
-                publicIpBtn.setText("Public IP: " + realPublicIP);
+                String ip = (cachedPublicIP != null) ? cachedPublicIP : "Loading...";
+                publicIpBtn.setText("Public IP: " + ip);
             } else {
                 publicIpBtn.setText("Public IP: ***.***.***.***");
             }
         });
 
-        JLabel localIpLabel = new JLabel(" Local IP: " + getLocalIp());
+        JLabel localIpLabel = new JLabel(" Local IP: " );
         localIpLabel.setForeground(Color.WHITE);
         localIpLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel macLabel = new JLabel(" MAC Address: " + getMacAddress());
+        JLabel macLabel = new JLabel(" MAC Address: " + (cachedMac != null ? cachedMac : "Loading..."));
         macLabel.setForeground(Color.LIGHT_GRAY);
         macLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -133,15 +165,15 @@ public class SettingsPanel extends JPanel {
         lastLoginLabel.setForeground(Color.LIGHT_GRAY);
         lastLoginLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel osLabel = new JLabel(" OS: " + getOSVersion());
+        JLabel osLabel = new JLabel(" OS: " + (cachedOs != null ? cachedOs : "Loading..."));
         osLabel.setForeground(Color.LIGHT_GRAY);
         osLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel cpuLabel = new JLabel(" CPU: " + getCpuInfo());
+        JLabel cpuLabel = new JLabel(" CPU: " + (cachedCpu != null ? cachedCpu : "Loading..."));
         cpuLabel.setForeground(Color.LIGHT_GRAY);
         cpuLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel displayLabel = new JLabel(" Display: " + getDisplayInfo());
+        JLabel displayLabel = new JLabel(" Display: " + (cachedDisplay != null ? cachedDisplay : "Loading..."));
         displayLabel.setForeground(Color.LIGHT_GRAY);
         displayLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -300,7 +332,7 @@ public class SettingsPanel extends JPanel {
         }
     }
 
-    private String getLocalIp() {
+    private static String fetchLocalIp() {
         try {
             return InetAddress.getLocalHost().getHostAddress();
         } catch (Exception e) {
@@ -308,7 +340,7 @@ public class SettingsPanel extends JPanel {
         }
     }
 
-    private String getPublicIP() {
+    public static String fetchPublicIP() {
         try (Scanner s = new Scanner(new URL("https://api.ipify.org").openStream(), StandardCharsets.UTF_8)) {
             return s.useDelimiter("\\A").next();
         } catch (Exception e) {
@@ -320,7 +352,7 @@ public class SettingsPanel extends JPanel {
         System.out.println("User logged out (placeholder).");
     }
 
-    private String getMacAddress() {
+    private static String fetchMac() {
         try {
             InetAddress ip = InetAddress.getLocalHost();
             NetworkInterface ni = NetworkInterface.getByInetAddress(ip);

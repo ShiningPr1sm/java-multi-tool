@@ -7,6 +7,7 @@ import db.AchievementDB;
 import db.WorkflowDB;
 
 import ui.UIStyle;
+import ui.settings.SettingsPanel;
 import ui.utils.AppLogger;
 import ui.utils.AuthService;
 import javax.swing.*;
@@ -53,5 +54,6 @@ public class Main {
                 AppLogger.info("Waiting for manual login...");
             }
         });
+        new Thread(SettingsPanel::prepareSystemInfo).start();
     }
 }
