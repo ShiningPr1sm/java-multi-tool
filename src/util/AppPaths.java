@@ -25,9 +25,9 @@ public class AppPaths {
 
     public static void init() {
         new File(APP_DIR + "/Databases").mkdirs();
-        DB_USER = new File(APP_DIR + "/Databases/user_data.db").exists()
-            ? APP_DIR + "/Databases/user_data.db"
-            : APP_DIR + "/user_data.db";
+        DB_USER = new File(APP_DIR + "/user_data.db").exists()
+            ? APP_DIR + "/user_data.db"
+            : APP_DIR + "/Databases/user_data.db";
     }
 
     public static String avatarFile(String login) {
