@@ -13,6 +13,15 @@ All notable changes to JMT project will be documented in this file.
 **Text Panel:**
 - Find & Replace
 
+
+
+## 🧩 [0.1.6] - 2026-07-26
+### HOTFIX v0.1.6
+
+- Fixed problem with user_data.db, when u can not login into account.
+If u have this problem after 0.1.6 update, please reinstall program. All your data will be saved.
+Make sure u not delete `%appdata%/ShiningPr1sm/JavaMultiTool` folder. It contain all data that program save as your info.
+
 ## 🧩 [0.1.5] - 2026-07-24
 # Added
 ### Core:
@@ -33,6 +42,7 @@ All notable changes to JMT project will be documented in this file.
 ### Fixed
 **Core:**
 - [!] As noted in version 0.1.4, each user will now have their own directory where their files will be stored.
+- Format `.exe` files from versions 0.1.2 -> 0.1.4 would not run because an incorrect main class was specified in the **jpackage** configuration. This has been fixed starting with version 0.1.5.
 
 **Photo & Video Panel:**
 - The link to download FFmpeg has been changed to a more stable one.
