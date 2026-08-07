@@ -24,7 +24,7 @@ public class Launcher {
         javafx.application.Platform.setImplicitExit(false);
 
         SwingUtilities.invokeLater(() -> {
-            // ваш обычный запуск Swing UI
+
         });
 
         AppPaths.init();
