@@ -1,5 +1,6 @@
 package ui.settings;
 
+import javafx.application.Platform;
 import service.AchievementService;
 import service.Services;
 import service.SystemInfoService;
@@ -9,6 +10,12 @@ import ui.MainFrame;
 import ui.StyledDialog;
 import ui.UIStyle;
 import util.AppLogger;
+
+import javafx.geometry.Rectangle2D;
+import javafx.stage.FileChooser;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import java.util.concurrent.CompletableFuture;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -288,19 +295,45 @@ public class SettingsPanel extends JPanel {
         }
     }
 
-    private void chooseAvatar(MainFrame mainFrame, JLabel avatarLabel) {
-        FileDialog fd = new FileDialog((Frame) SwingUtilities.getWindowAncestor(this),
-                "Choose an image", FileDialog.LOAD);
-        fd.setFilenameFilter((dir, name) -> {
-            String lower = name.toLowerCase();
-            return lower.endsWith(".jpg") || lower.endsWith(".jpeg")
-                    || lower.endsWith(".png") || lower.endsWith(".bmp")
-                    || lower.endsWith(".gif");
-        });
-        fd.setVisible(true);
+    private File chooseFile(String title, FileChooser.ExtensionFilter... filters) {
+        CompletableFuture<File> future = new CompletableFuture<>();
+        Platform.runLater(() -> {
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle(title);
+            if (filters.length > 0) {
+                chooser.getExtensionFilters().addAll(filters);
+            }
 
-        if (fd.getFile() == null) return;
-        File selected = new File(fd.getDirectory(), fd.getFile());
+            Stage stage = new Stage();
+            stage.setWidth(0);
+            stage.setHeight(0);
+            stage.setOpacity(0);
+            stage.setTitle("");
+            Rectangle2D screen = Screen.getPrimary().getVisualBounds();
+            stage.setX(screen.getWidth() / 2);
+            stage.setY(screen.getHeight() / 2);
+
+            File selected = chooser.showOpenDialog(stage);
+            stage.close();
+            future.complete(selected);
+        });
+        try {
+            return future.get();
+        } catch (Exception e) {
+            AppLogger.error(e.toString());
+            return null;
+        }
+    }
+
+    private void chooseAvatar(MainFrame mainFrame, JLabel avatarLabel) {
+        File selected = chooseFile(
+                "Choose an image",
+                new FileChooser.ExtensionFilter(
+                        "Images", "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif"
+                )
+        );
+
+        if (selected == null) return;
 
         try {
             BufferedImage img = ImageIO.read(selected);

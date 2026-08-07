@@ -5,6 +5,7 @@ import util.AppLogger;
 import util.AppPaths;
 import util.ConfigManager;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -16,6 +17,16 @@ public class Launcher {
     private static final String DEV_VERSION = "dev";
 
     public static void main(String[] args) {
+        try {
+            javafx.application.Platform.startup(() -> {});
+        } catch (IllegalStateException ignored) {
+        }
+        javafx.application.Platform.setImplicitExit(false);
+
+        SwingUtilities.invokeLater(() -> {
+            // ваш обычный запуск Swing UI
+        });
+
         AppPaths.init();
 
         AuthService authService = new AuthService();
