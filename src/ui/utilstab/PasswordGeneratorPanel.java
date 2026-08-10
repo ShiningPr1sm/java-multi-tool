@@ -1,9 +1,12 @@
 package ui.utilstab;
 
 import service.Services;
+import ui.StyledDialog;
 import ui.UIStyle;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.security.SecureRandom;
@@ -33,38 +36,52 @@ public class PasswordGeneratorPanel extends JPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(6, 10, 6, 10);
 
-        JLabel title = new JLabel("Password Generator");
+        JLabel title = new JLabel("Password Generator", SwingConstants.CENTER);
         title.setForeground(UIStyle.ACCENT_COLOR);
         title.setFont(new Font("Segoe UI", Font.BOLD, 18));
         center.add(title, c);
 
         c.insets = new Insets(15, 10, 6, 10);
-        JPanel lenRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        lenRow.setOpaque(false);
+        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        topRow.setOpaque(false);
         JLabel lenLbl = new JLabel("Length:");
         lenLbl.setForeground(UIStyle.TEXT_COLOR);
         lengthSpinner = new JSpinner(new SpinnerNumberModel(16, 4, 128, 1));
         UIStyle.styleSpinner(lengthSpinner);
         ((JSpinner.DefaultEditor) lengthSpinner.getEditor()).getTextField().setPreferredSize(new Dimension(60, 25));
-        lenRow.add(lenLbl);
-        lenRow.add(lengthSpinner);
-        center.add(lenRow, c);
+        topRow.add(lenLbl);
+        topRow.add(lengthSpinner);
 
-        c.insets = new Insets(6, 10, 6, 10);
         upperCb = new JCheckBox("Uppercase (A-Z)", true);
         lowerCb = new JCheckBox("Lowercase (a-z)", true);
         digitCb = new JCheckBox("Digits (0-9)", true);
         symbolCb = new JCheckBox("Symbols (!@#...)", true);
         for (var cb : new JCheckBox[]{upperCb, lowerCb, digitCb, symbolCb}) {
             UIStyle.styleCheckbox(cb);
-            center.add(cb, c);
+            topRow.add(cb);
         }
+        center.add(topRow, c);
 
         passwordField = new JTextField(25);
-        passwordField.setEditable(false);
         passwordField.setFont(new Font("Consolas", Font.PLAIN, 14));
         passwordField.setHorizontalAlignment(JTextField.CENTER);
         UIStyle.styleTextField(passwordField);
+        passwordField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateStrength(passwordField.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateStrength(passwordField.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateStrength(passwordField.getText());
+            }
+        });
         center.add(passwordField, c);
 
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -80,6 +97,8 @@ public class PasswordGeneratorPanel extends JPanel {
                 Toolkit.getDefaultToolkit().getSystemClipboard()
                         .setContents(new StringSelection(pwd), null);
                 services.achievementService().complete(login, "security");
+            } else {
+                StyledDialog.show(SwingUtilities.windowForComponent(this), "You can't generate empty password!");
             }
         });
         btnRow.add(genBtn);
@@ -114,10 +133,22 @@ public class PasswordGeneratorPanel extends JPanel {
             pwd.append(pool.charAt(RANDOM.nextInt(pool.length())));
         }
         passwordField.setText(pwd.toString());
+        updateStrength(pwd.toString());
+    }
 
-        int types = (upperCb.isSelected() ? 1 : 0) + (lowerCb.isSelected() ? 1 : 0)
-                + (digitCb.isSelected() ? 1 : 0) + (symbolCb.isSelected() ? 1 : 0);
-        int score = len * types;
+    private void updateStrength(String pwd) {
+        if (pwd == null || pwd.isEmpty()) {
+            strengthLabel.setText("");
+            return;
+        }
+
+        int types = 0;
+        if (pwd.chars().anyMatch(Character::isUpperCase)) types++;
+        if (pwd.chars().anyMatch(Character::isLowerCase)) types++;
+        if (pwd.chars().anyMatch(Character::isDigit)) types++;
+        if (pwd.chars().anyMatch(ch -> SYMBOLS.indexOf(ch) >= 0)) types++;
+
+        int score = pwd.length() * types;
         if (score < 20) strengthLabel.setText("Strength: Weak");
         else if (score < 40) strengthLabel.setText("Strength: Medium");
         else strengthLabel.setText("Strength: Strong");
