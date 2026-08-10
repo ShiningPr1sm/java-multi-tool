@@ -127,18 +127,23 @@ public class SettingsPanel extends JPanel {
         nicknameBox.add(Box.createVerticalStrut(6));
         nicknameBox.add(nicknameField);
         nicknameBox.add(Box.createVerticalStrut(6));
+
         JPanel btnRow = new JPanel(new GridLayout(2, 1, 0, 15));
         btnRow.setBackground(UIStyle.BG_COLOR);
         int commonWidth = Math.max(nicknameField.getPreferredSize().width,
                 Math.max(saveNicknameBtn.getPreferredSize().width, changePasswordBtn.getPreferredSize().width));
+
         nicknameField.setPreferredSize(new Dimension(commonWidth, nicknameField.getPreferredSize().height));
         nicknameField.setMaximumSize(new Dimension(commonWidth, nicknameField.getPreferredSize().height));
+
         btnRow.setMaximumSize(new Dimension(commonWidth, 80));
         btnRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         saveNicknameBtn.setPreferredSize(new Dimension(commonWidth, saveNicknameBtn.getPreferredSize().height));
         changePasswordBtn.setPreferredSize(new Dimension(commonWidth, changePasswordBtn.getPreferredSize().height));
         btnRow.add(saveNicknameBtn);
         btnRow.add(changePasswordBtn);
+
         nicknameBox.add(btnRow);
         nicknameBox.add(Box.createVerticalStrut(15));
         themeBox.setPreferredSize(new Dimension(commonWidth, themeBox.getPreferredSize().height));
@@ -278,6 +283,7 @@ public class SettingsPanel extends JPanel {
         infoPanel.add(trayBox);
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(logoutBtn);
+
         add(userInfoPanel);
         add(infoPanel);
 
@@ -394,6 +400,7 @@ public class SettingsPanel extends JPanel {
         newLabel.setForeground(Color.WHITE);
         JLabel confLabel = new JLabel("Confirm New Password:");
         confLabel.setForeground(Color.WHITE);
+
         panel.add(curLabel);
         panel.add(currentPassword);
         panel.add(newLabel);
@@ -481,5 +488,4 @@ public class SettingsPanel extends JPanel {
             mainFrame.updateAvatarImage(new ImageIcon(scaled));
         }
     }
-
 }
