@@ -33,16 +33,16 @@ public class SettingsPanel extends JPanel {
     private final db.UserRepository userRepo = DatabaseProvider.getUserRepository();
     private final String login;
     private final AchievementService achievementService;
-    private final SystemInfoService systemInfoService;
     private final Services services;
-    private final JLabel appUptimeLabel = new JLabel(" App uptime: Loading...");
-    private final JLabel sysUptimeLabel = new JLabel(" System uptime: Loading...");
+
+    private static final String LOADING_LABEL = "Loading...";
+    private final JLabel appUptimeLabel = new JLabel(" App uptime: " + LOADING_LABEL);
+    private final JLabel sysUptimeLabel = new JLabel(" System uptime: " + LOADING_LABEL);
     private final Timer uptimeTimer;
 
     public SettingsPanel(MainFrame mainFrame, String login, AchievementService achievementService, SystemInfoService systemInfoService, Services services) {
         this.login = login;
         this.achievementService = achievementService;
-        this.systemInfoService = systemInfoService;
         this.services = services;
         systemInfoService.prepare();
 
@@ -122,11 +122,12 @@ public class SettingsPanel extends JPanel {
         JPanel nicknameBox = new JPanel();
         nicknameBox.setLayout(new BoxLayout(nicknameBox, BoxLayout.Y_AXIS));
         nicknameBox.setBackground(UIStyle.BG_COLOR);
+        nicknameBox.add(Box.createVerticalStrut(14));
         nicknameBox.add(nicknameLabel);
         nicknameBox.add(Box.createVerticalStrut(6));
         nicknameBox.add(nicknameField);
         nicknameBox.add(Box.createVerticalStrut(6));
-        JPanel btnRow = new JPanel(new GridLayout(2, 1, 0, 6));
+        JPanel btnRow = new JPanel(new GridLayout(2, 1, 0, 15));
         btnRow.setBackground(UIStyle.BG_COLOR);
         int commonWidth = Math.max(nicknameField.getPreferredSize().width,
                 Math.max(saveNicknameBtn.getPreferredSize().width, changePasswordBtn.getPreferredSize().width));
@@ -139,7 +140,7 @@ public class SettingsPanel extends JPanel {
         btnRow.add(saveNicknameBtn);
         btnRow.add(changePasswordBtn);
         nicknameBox.add(btnRow);
-        nicknameBox.add(Box.createVerticalStrut(7));
+        nicknameBox.add(Box.createVerticalStrut(15));
         themeBox.setPreferredSize(new Dimension(commonWidth, themeBox.getPreferredSize().height));
         themeBox.setMaximumSize(new Dimension(commonWidth, themeBox.getPreferredSize().height));
         nicknameBox.add(themeBox);
@@ -159,17 +160,17 @@ public class SettingsPanel extends JPanel {
         publicIpBtn.addActionListener(e -> {
             if (publicIpBtn.getText().contains("***")) {
                 String ip = systemInfoService.getCachedPublicIP();
-                publicIpBtn.setText("Public IP: " + (ip != null ? ip : "Loading..."));
+                publicIpBtn.setText("Public IP: " + (ip != null ? ip : LOADING_LABEL));
             } else {
                 publicIpBtn.setText("Public IP: ***.***.***.***");
             }
         });
 
-        JLabel localIpLabel = new JLabel(" Local IP: " + (systemInfoService.getCachedLocalIP() != null ? systemInfoService.getCachedLocalIP() : "Loading..."));
+        JLabel localIpLabel = new JLabel(" Local IP: " + (systemInfoService.getCachedLocalIP() != null ? systemInfoService.getCachedLocalIP() : LOADING_LABEL));
         localIpLabel.setForeground(Color.WHITE);
         localIpLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel macLabel = new JLabel(" MAC Address: " + (systemInfoService.getCachedMac() != null ? systemInfoService.getCachedMac() : "Loading..."));
+        JLabel macLabel = new JLabel(" MAC Address: " + (systemInfoService.getCachedMac() != null ? systemInfoService.getCachedMac() : LOADING_LABEL));
         macLabel.setForeground(Color.LIGHT_GRAY);
         macLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -185,7 +186,7 @@ public class SettingsPanel extends JPanel {
         gatewayBtn.addActionListener(e -> {
             if (gatewayBtn.getText().contains("***")) {
                 String gw = systemInfoService.getCachedGatewayIp();
-                gatewayBtn.setText("Gateway IP: " + (gw != null ? gw : "Loading..."));
+                gatewayBtn.setText("Gateway IP: " + (gw != null ? gw : LOADING_LABEL));
             } else {
                 gatewayBtn.setText("Gateway IP: ***.***.***.***");
             }
@@ -203,7 +204,7 @@ public class SettingsPanel extends JPanel {
         dnsBtn.addActionListener(e -> {
             if (dnsBtn.getText().contains("***")) {
                 String dns = systemInfoService.getCachedDnsServers();
-                dnsBtn.setText("DNS Servers: " + (dns != null ? dns : "Loading..."));
+                dnsBtn.setText("DNS Servers: " + (dns != null ? dns : LOADING_LABEL));
             } else {
                 dnsBtn.setText("DNS Servers: ***.***.***.***");
             }
@@ -295,11 +296,11 @@ public class SettingsPanel extends JPanel {
         }
     }
 
-    private File chooseFile(String title, FileChooser.ExtensionFilter... filters) {
+    private File chooseFile(FileChooser.ExtensionFilter... filters) {
         CompletableFuture<File> future = new CompletableFuture<>();
         Platform.runLater(() -> {
             FileChooser chooser = new FileChooser();
-            chooser.setTitle(title);
+            chooser.setTitle("Choose an image");
             if (filters.length > 0) {
                 chooser.getExtensionFilters().addAll(filters);
             }
@@ -320,14 +321,13 @@ public class SettingsPanel extends JPanel {
         try {
             return future.get();
         } catch (Exception e) {
-            AppLogger.error(e.toString());
+            AppLogger.error(e.getMessage());
             return null;
         }
     }
 
     private void chooseAvatar(MainFrame mainFrame, JLabel avatarLabel) {
         File selected = chooseFile(
-                "Choose an image",
                 new FileChooser.ExtensionFilter(
                         "Images", "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif"
                 )

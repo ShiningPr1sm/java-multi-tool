@@ -8,12 +8,17 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 
 public class AvatarCropperDialog extends JDialog {
+    private static final double MIN_ZOOM = 0.5;
+    private static final double MAX_ZOOM = 8.0;
+    private static final double ZOOM_STEP = 1.1;
+
     private final BufferedImage originalImage;
     private BufferedImage croppedImage;
     private final Rectangle selection;
     private final Point dragOffset = new Point();
     private boolean dragging = false;
     private double scale = 1.0;
+    private double zoom = 1.0;
     private final int displayWidth;
     private final int displayHeight;
 
@@ -43,10 +48,17 @@ public class AvatarCropperDialog extends JDialog {
         JButton cropButton = new JButton("Crop and Save");
         cropButton.addActionListener(e -> {
             try {
-                int sx = (int) (selection.x / scale);
-                int sy = (int) (selection.y / scale);
-                int sw = (int) (selection.width / scale);
-                int sh = (int) (selection.height / scale);
+                int sx = (int) ((selection.x - offsetX()) / effectiveScale());
+                int sy = (int) ((selection.y - offsetY()) / effectiveScale());
+                int sw = (int) (selection.width / effectiveScale());
+                int sh = (int) (selection.height / effectiveScale());
+
+                int imgW = originalImage.getWidth();
+                int imgH = originalImage.getHeight();
+                sx = Math.max(0, Math.min(sx, imgW - 1));
+                sy = Math.max(0, Math.min(sy, imgH - 1));
+                sw = Math.max(1, Math.min(sw, imgW - sx));
+                sh = Math.max(1, Math.min(sh, imgH - sy));
 
                 croppedImage = originalImage.getSubimage(sx, sy, sw, sh);
                 dispose();
@@ -76,7 +88,12 @@ public class AvatarCropperDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g;
-                g2.drawImage(originalImage, 0, 0, displayWidth, displayHeight, null);
+                int w = drawWidth();
+                int h = drawHeight();
+                int ox = offsetX();
+                int oy = offsetY();
+                g2.drawImage(originalImage, ox, oy, ox + w, oy + h,
+                        0, 0, originalImage.getWidth(), originalImage.getHeight(), null);
 
                 g2.setColor(new Color(0, 0, 0, 100));
                 Shape clip = g2.getClip();
@@ -114,14 +131,49 @@ public class AvatarCropperDialog extends JDialog {
                 if (dragging) {
                     int newX = e.getX() - dragOffset.x;
                     int newY = e.getY() - dragOffset.y;
-                    newX = Math.max(0, Math.min(newX, displayWidth - selection.width));
-                    newY = Math.max(0, Math.min(newY, displayHeight - selection.height));
+                    newX = Math.max(offsetX(), Math.min(newX, offsetX() + drawWidth() - selection.width));
+                    newY = Math.max(offsetY(), Math.min(newY, offsetY() + drawHeight() - selection.height));
                     selection.setLocation(newX, newY);
                     imageLabel.repaint();
                 }
             }
         });
+
+        imageLabel.addMouseWheelListener(e -> {
+            double factor = (e.getWheelRotation() < 0) ? ZOOM_STEP : 1.0 / ZOOM_STEP;
+            zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * factor));
+            clampSelection();
+            imageLabel.repaint();
+        });
+
         return imageLabel;
+    }
+
+    private int drawWidth() {
+        return (int) (displayWidth * zoom);
+    }
+
+    private int drawHeight() {
+        return (int) (displayHeight * zoom);
+    }
+
+    private int offsetX() {
+        return (displayWidth - drawWidth()) / 2;
+    }
+
+    private int offsetY() {
+        return (displayHeight - drawHeight()) / 2;
+    }
+
+    private double effectiveScale() {
+        return scale * zoom;
+    }
+
+    private void clampSelection() {
+        int maxX = offsetX() + drawWidth() - selection.width;
+        int maxY = offsetY() + drawHeight() - selection.height;
+        selection.x = Math.max(offsetX(), Math.min(selection.x, maxX));
+        selection.y = Math.max(offsetY(), Math.min(selection.y, maxY));
     }
 
     public static BufferedImage showCropDialog(Component parent, BufferedImage img) {
