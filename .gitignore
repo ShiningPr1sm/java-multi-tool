@@ -35,4 +35,5 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-/.idea/modules.xml
+/.idea/modules.xml!/.github/workflows/qodana_code_quality.yml
+!/qodana.yaml
