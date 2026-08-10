@@ -7,6 +7,9 @@ out/
 target/
 build/
 
+.github/workflows/qodana_code_quality.yml
+qodana.yaml
+
 ### DB ####
 *.sqlite
 /dependency-reduced-pom.xml
@@ -35,5 +38,4 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-/.idea/modules.xml!/.github/workflows/qodana_code_quality.yml
-!/qodana.yaml
+/.idea/modules.xml
