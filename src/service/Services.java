@@ -12,4 +12,6 @@ public record Services(
     UserSession userSession,
     NotificationService notificationService,
     QuoteService quoteService
-) {}
+) {
+
+}
