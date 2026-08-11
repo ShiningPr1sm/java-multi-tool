@@ -1,5 +1,7 @@
 package service;
 
+import util.AppLogger;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -29,10 +31,10 @@ public class AuthService {
 
             if (HASH_ADMIN.equals(inputHash)) {
                 currentRole = Role.ADMIN;
-                System.out.println("System: Logged in as ADMIN");
+                AppLogger.admin("System: Login as Admin.");
             } else if (HASH_TESTER.equals(inputHash)) {
                 currentRole = Role.TESTER;
-                System.out.println("System: Logged in as TESTER");
+                AppLogger.admin("System: Login as Tester.");
             } else {
                 currentRole = Role.USER;
             }

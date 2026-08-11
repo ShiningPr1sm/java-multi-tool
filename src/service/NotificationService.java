@@ -7,12 +7,10 @@ import db.NotificationRepository;
 import util.AppLogger;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class NotificationService {
     private static final int[] REMINDER_DAYS = {7, 3, 1};
-    private static final DateTimeFormatter STORAGE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     public int checkBirthdayReminders() {
         NotificationRepository notifRepo = DatabaseProvider.getNotificationRepository();
@@ -34,7 +32,7 @@ public class NotificationService {
                         if (!notifRepo.hasBeenNotifiedToday(bday.getId(), "bday_reminder", daysBefore)) {
                             notifRepo.insertNotification("bday_reminder", bday.getId(), daysBefore);
                             newCount++;
-                            AppLogger.info("Notification: " + bday.getName() + " in " + daysBefore + " days");
+                            AppLogger.info("Notification: " + bday.getName() + " have bd in " + daysBefore + " days");
                         }
                     }
                 }

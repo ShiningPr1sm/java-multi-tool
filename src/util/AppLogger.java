@@ -25,6 +25,7 @@ public class AppLogger {
 
         System.out.println(logEntry);
         sessionLogs.add(logEntry);
+
         saveToFile(logEntry);
         if (consoleOutput != null) {
             consoleOutput.accept(logEntry + "\n");
@@ -36,7 +37,7 @@ public class AppLogger {
              PrintWriter pw = new PrintWriter(fw)) {
             pw.println(entry);
         } catch (IOException e) {
-            System.err.println("[AppLogger] Failed to write log file: " + e.getMessage());
+            AppLogger.error("Could not save log to file.");
         }
     }
 
@@ -48,12 +49,12 @@ public class AppLogger {
     }
 
     public static void info(String msg) {
-        log("INFO", msg);
+        log("INF", msg);
     }
     public static void error(String msg) {
-        log("ERROR", msg);
+        log("ERR", msg);
     }
     public static void admin(String msg) {
-        log("ADMIN", msg);
+        log("ADM", msg);
     }
 }
