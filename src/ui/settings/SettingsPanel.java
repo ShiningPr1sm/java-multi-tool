@@ -46,7 +46,7 @@ public class SettingsPanel extends JPanel {
         this.services = services;
         systemInfoService.prepare();
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout(0, 10));
         setBackground(UIStyle.BG_COLOR);
 
         UIStyle.makeFocusable(this);
@@ -284,8 +284,27 @@ public class SettingsPanel extends JPanel {
         infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(logoutBtn);
 
-        add(userInfoPanel);
-        add(infoPanel);
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBackground(UIStyle.BG_COLOR);
+        content.add(userInfoPanel);
+        content.add(infoPanel);
+
+        JScrollPane scrollPane = new JScrollPane(content);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(UIStyle.BG_COLOR);
+        UIStyle.styleScrollBar(scrollPane);
+
+        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        bottomBar.setBackground(UIStyle.BG_COLOR);
+        JButton advancedBtn = new JButton("Advanced Settings");
+        UIStyle.styleButton(advancedBtn);
+        advancedBtn.addActionListener(e ->
+                new AdvancedSettingsDialog((Frame) SwingUtilities.getWindowAncestor(this)).setVisible(true));
+        bottomBar.add(advancedBtn);
+
+        add(scrollPane, BorderLayout.CENTER);
+        add(bottomBar, BorderLayout.SOUTH);
 
         uptimeTimer = new Timer(1000, e -> {
             appUptimeLabel.setText(" App uptime: " + systemInfoService.getAppUptime());

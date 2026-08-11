@@ -50,7 +50,8 @@ public class Launcher {
         String currentVersion = readVersionFromManifest();
         AppLogger.info("Current version: " + currentVersion);
 
-        if (!DEV_VERSION.equals(currentVersion)) {
+        if (!DEV_VERSION.equals(currentVersion)
+                && Boolean.parseBoolean(ConfigManager.loadProperty("autoUpdate", "true"))) {
             String skippedVersion = ConfigManager.loadSkippedVersion();
 
             UpdateManager updateManager = new UpdateManager();

@@ -18,6 +18,7 @@ import util.AchievementCallback;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import util.AppLogger;
 import util.AppPaths;
+import util.ConfigManager;
 import util.VersionInfo;
 
 import javax.swing.*;
@@ -125,7 +126,7 @@ public class MainFrame extends JFrame implements AchievementCallback {
         }
 
         contentPanel.removeAll();
-        WelcomePanel welcomePanel = new WelcomePanel(login, services.greetingService(), services.quoteService().getDailyQuote());
+        WelcomePanel welcomePanel = new WelcomePanel(login, services.greetingService(), dailyQuote());
         contentPanel.add(welcomePanel, BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
@@ -135,7 +136,9 @@ public class MainFrame extends JFrame implements AchievementCallback {
 
         this.trayManager = new TrayManager(this);
 
-        services.notificationService().checkBirthdayReminders();
+        if (Boolean.parseBoolean(ConfigManager.loadProperty("birthdayReminders", "true"))) {
+            services.notificationService().checkBirthdayReminders();
+        }
         int active = services.notificationService().countActive();
         if (active > 0) {
             headerPanel.setNotificationBadge(active);
@@ -240,7 +243,7 @@ public class MainFrame extends JFrame implements AchievementCallback {
     private void openWelcome() {
         if ("Welcome".equals(currentTab)) return;
         contentPanel.removeAll();
-        contentPanel.add(new WelcomePanel(login, services.greetingService(), services.quoteService().getDailyQuote()), BorderLayout.CENTER);
+        contentPanel.add(new WelcomePanel(login, services.greetingService(), dailyQuote()), BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
         updateTitle("Welcome");
@@ -346,6 +349,12 @@ public class MainFrame extends JFrame implements AchievementCallback {
 
     public void updateAvatarImage(ImageIcon newIcon) {
         headerPanel.updateAvatarImage(newIcon);
+    }
+
+    private String dailyQuote() {
+        return Boolean.parseBoolean(ConfigManager.loadProperty("dailyQuote", "true"))
+                ? services.quoteService().getDailyQuote()
+                : null;
     }
 
     public void updateNickName(String nickname) {
