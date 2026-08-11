@@ -36,6 +36,7 @@ public class SettingsPanel extends JPanel {
     private final Services services;
 
     private static final String LOADING_LABEL = "Loading...";
+    private static final String FONT_LABEL = "Label.font";
     private final JLabel appUptimeLabel = new JLabel(" App uptime: " + LOADING_LABEL);
     private final JLabel sysUptimeLabel = new JLabel(" System uptime: " + LOADING_LABEL);
     private final Timer uptimeTimer;
@@ -155,12 +156,12 @@ public class SettingsPanel extends JPanel {
 
         JButton publicIpBtn = new JButton("Public IP: ***.***.***.***");
         publicIpBtn.setForeground(Color.WHITE);
-        publicIpBtn.setFont(UIManager.getFont("Label.font"));
+        publicIpBtn.setFont(UIManager.getFont(FONT_LABEL));
         publicIpBtn.setContentAreaFilled(false);
         publicIpBtn.setBorderPainted(false);
         publicIpBtn.setFocusPainted(false);
         publicIpBtn.setOpaque(false);
-        publicIpBtn.setMargin(new Insets(0, 0, 0, 0));
+        publicIpBtn.setMargin(new Insets(20, 0, 0, 0));
         publicIpBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         publicIpBtn.addActionListener(e -> {
             if (publicIpBtn.getText().contains("***")) {
@@ -181,7 +182,7 @@ public class SettingsPanel extends JPanel {
 
         JButton gatewayBtn = new JButton("Gateway IP: ***.***.***.***");
         gatewayBtn.setForeground(Color.WHITE);
-        gatewayBtn.setFont(UIManager.getFont("Label.font"));
+        gatewayBtn.setFont(UIManager.getFont(FONT_LABEL));
         gatewayBtn.setContentAreaFilled(false);
         gatewayBtn.setBorderPainted(false);
         gatewayBtn.setFocusPainted(false);
@@ -199,7 +200,7 @@ public class SettingsPanel extends JPanel {
 
         JButton dnsBtn = new JButton("DNS Servers: ***.***.***.***");
         dnsBtn.setForeground(Color.WHITE);
-        dnsBtn.setFont(UIManager.getFont("Label.font"));
+        dnsBtn.setFont(UIManager.getFont(FONT_LABEL));
         dnsBtn.setContentAreaFilled(false);
         dnsBtn.setBorderPainted(false);
         dnsBtn.setFocusPainted(false);
