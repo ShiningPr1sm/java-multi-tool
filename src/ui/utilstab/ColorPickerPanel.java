@@ -104,6 +104,7 @@ public class ColorPickerPanel extends JPanel {
         JPanel top = new JPanel();
         top.setLayout(new BoxLayout(top, BoxLayout.X_AXIS));
         top.setOpaque(false);
+        top.add(Box.createRigidArea(new Dimension(150, 0)));
         top.add(previewLabel);
         top.add(Box.createRigidArea(new Dimension(15, 0)));
         top.add(controls);
@@ -159,7 +160,7 @@ public class ColorPickerPanel extends JPanel {
         Color c = new Color(r, g, b);
         previewLabel.setBackground(c);
         hexField.setText(String.format("#%02X%02X%02X", r, g, b));
-        rgbField.setText(String.format("(%d, %d, %d)", r, g, b));
+        rgbField.setText(String.format("%d, %d, %d", r, g, b));
 
         double rn = r / 255.0, gn = g / 255.0, bn = b / 255.0;
         double max = Math.max(rn, Math.max(gn, bn));
@@ -284,8 +285,8 @@ public class ColorPickerPanel extends JPanel {
                     }
                 }
 
-                int vLine = (sampleSize / 2) * scaleFactor;
-                int hLine = (sampleSize / 2) * scaleFactor;
+                int vLine = (sampleSize / 2) * scaleFactor + scaleFactor / 2;
+                int hLine = (sampleSize / 2) * scaleFactor + scaleFactor / 2;
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.setColor(Color.BLACK);
                 g2.drawLine(vLine - 1, 0, vLine - 1, magSize - 1);
