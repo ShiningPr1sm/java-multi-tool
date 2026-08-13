@@ -1,6 +1,7 @@
 package ui.utilstab;
 
 import ui.UIStyle;
+import util.AppLogger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,7 +58,9 @@ public class NetworkToolsPanel extends JPanel {
                     URL url = new URL("https://api.ipify.org");
                     String ip = new String(url.openStream().readAllBytes());
                     SwingUtilities.invokeLater(() -> appendOutput("Your public IP: " + ip));
+                    AppLogger.info("Public IP fetched: " + ip);
                 } catch (Exception ex) {
+                    AppLogger.error("Failed to get public IP: " + ex.getMessage());
                     SwingUtilities.invokeLater(() -> appendOutput("Failed to get IP: " + ex.getMessage()));
                 }
             }).start();
@@ -112,7 +115,10 @@ public class NetworkToolsPanel extends JPanel {
                                 + ((count - s) * 100 / count) + "% packet loss");
                         if (s > 0) appendOutput("avg time: " + avg + "ms");
                     });
+                    AppLogger.info("Ping " + host + " completed: " + s + "/" + count
+                            + " received, avg " + avg + "ms");
                 } catch (Exception ex) {
+                    AppLogger.error("Ping " + host + " failed: " + ex.getMessage());
                     SwingUtilities.invokeLater(() -> appendOutput("Ping failed: " + ex.getMessage()));
                 }
             }).start();
@@ -147,7 +153,9 @@ public class NetworkToolsPanel extends JPanel {
                 try (Socket s = new Socket()) {
                     s.connect(new InetSocketAddress(host, port), 5000);
                     SwingUtilities.invokeLater(() -> appendOutput("Port " + port + " is OPEN"));
+                    AppLogger.info("Port " + port + " on " + host + " is OPEN");
                 } catch (Exception ex) {
+                    AppLogger.info("Port " + port + " on " + host + " is CLOSED or filtered");
                     SwingUtilities.invokeLater(() -> appendOutput("Port " + port + " is CLOSED or filtered"));
                 }
             }).start();
@@ -188,7 +196,10 @@ public class NetworkToolsPanel extends JPanel {
                     }
                     String whois = result.toString();
                     SwingUtilities.invokeLater(() -> appendOutput(whois));
+                    AppLogger.info("Whois lookup for " + domain + " completed ("
+                            + whois.length() + " chars)");
                 } catch (Exception ex) {
+                    AppLogger.error("Whois lookup for " + domain + " failed: " + ex.getMessage());
                     SwingUtilities.invokeLater(() -> appendOutput("Whois failed: " + ex.getMessage()));
                 }
             }).start();

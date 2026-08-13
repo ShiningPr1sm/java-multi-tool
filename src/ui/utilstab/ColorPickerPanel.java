@@ -1,6 +1,7 @@
 package ui.utilstab;
 
 import ui.UIStyle;
+import util.AppLogger;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -145,7 +146,8 @@ public class ColorPickerPanel extends JPanel {
         tf.addActionListener(e -> {
             try {
                 slider.setValue(Integer.parseInt(tf.getText()));
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException ex) {
+                AppLogger.info("Invalid numeric value entered for slider: " + tf.getText());
             }
         });
         tf.setText(String.valueOf(slider.getValue()));
@@ -191,7 +193,8 @@ public class ColorPickerPanel extends JPanel {
             rSlider.setValue(c.getRed());
             gSlider.setValue(c.getGreen());
             bSlider.setValue(c.getBlue());
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            AppLogger.info("Invalid HEX value: " + hexField.getText());
         }
     }
 
@@ -204,6 +207,7 @@ public class ColorPickerPanel extends JPanel {
     private void copy(String text) {
         Toolkit.getDefaultToolkit().getSystemClipboard()
                 .setContents(new StringSelection(text), null);
+        AppLogger.info("Color copied to clipboard: " + text);
     }
 
     private void startPipette() {
@@ -220,6 +224,7 @@ public class ColorPickerPanel extends JPanel {
                 BufferedImage screenshot = robot.createScreenCapture(new Rectangle(w, h));
                 SwingUtilities.invokeLater(() -> showOverlay(parent, screenshot, w, h));
             } catch (AWTException ex) {
+                AppLogger.error("Failed to initialize screen capture for pipette: " + ex.getMessage());
                 SwingUtilities.invokeLater(() ->
                     JOptionPane.showMessageDialog(this, "Failed to initialize screen capture."));
             }

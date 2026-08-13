@@ -129,6 +129,7 @@ public class QRToolsPanel extends JPanel {
                     qrPreview.setText("");
                     downloadBtn.setEnabled(true);
                 });
+                AppLogger.info("QR generated successfully (" + text.length() + " chars)");
             } catch (Exception ex) {
                 AppLogger.error("QR generation failed: " + ex.getMessage());
             }
@@ -159,6 +160,11 @@ public class QRToolsPanel extends JPanel {
                 final String finalText = text;
                 SwingUtilities.invokeLater(() -> decodeResult.setText(
                         finalText != null ? finalText : "Failed to decode QR"));
+                if (finalText != null) {
+                    AppLogger.info("QR decoded from " + fc.getSelectedFile().getName());
+                } else {
+                    AppLogger.info("QR decoding failed (no result)");
+                }
             } catch (Exception ex) {
                 AppLogger.error("QR decoding failed: " + ex.getMessage());
                 SwingUtilities.invokeLater(() -> decodeResult.setText("Failed to decode QR"));
@@ -216,6 +222,7 @@ public class QRToolsPanel extends JPanel {
         try {
             ImageIO.write(lastQrImage, "png", file);
             services.achievementService().complete(login, "qrcode");
+            AppLogger.info("QR saved to " + file.getAbsolutePath());
         } catch (Exception ex) {
             AppLogger.error("QR download failed: " + ex.getMessage());
             JOptionPane.showMessageDialog(this, "Failed to save QR", "Error", JOptionPane.ERROR_MESSAGE);

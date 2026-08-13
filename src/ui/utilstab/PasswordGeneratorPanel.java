@@ -3,6 +3,7 @@ package ui.utilstab;
 import service.Services;
 import ui.StyledDialog;
 import ui.UIStyle;
+import util.AppLogger;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -96,6 +97,7 @@ public class PasswordGeneratorPanel extends JPanel {
             if (!pwd.isEmpty()) {
                 Toolkit.getDefaultToolkit().getSystemClipboard()
                         .setContents(new StringSelection(pwd), null);
+                AppLogger.info("Password copied to clipboard");
                 services.achievementService().complete(login, "security");
             } else {
                 StyledDialog.show(SwingUtilities.windowForComponent(this), "You can't generate empty password!");
@@ -124,6 +126,7 @@ public class PasswordGeneratorPanel extends JPanel {
         if (pool.isEmpty()) {
             passwordField.setText("");
             strengthLabel.setText("Select at least one character type");
+            AppLogger.info("Password generation skipped: no character types selected");
             return;
         }
 
@@ -134,6 +137,7 @@ public class PasswordGeneratorPanel extends JPanel {
         }
         passwordField.setText(pwd.toString());
         updateStrength(pwd.toString());
+        AppLogger.info("Password generated (length " + len + ")");
     }
 
     private void updateStrength(String pwd) {
