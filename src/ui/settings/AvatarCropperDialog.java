@@ -1,5 +1,7 @@
 package ui.settings;
 
+import util.AppLogger;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -61,8 +63,10 @@ public class AvatarCropperDialog extends JDialog {
                 sh = Math.max(1, Math.min(sh, imgH - sy));
 
                 croppedImage = originalImage.getSubimage(sx, sy, sw, sh);
+                AppLogger.info("Avatar cropped (" + sw + "x" + sh + ").");
                 dispose();
             } catch (RasterFormatException ex) {
+                AppLogger.error("Avatar cropper: invalid crop area - " + ex.getMessage());
                 JOptionPane.showMessageDialog(this, "Invalid crop area.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });

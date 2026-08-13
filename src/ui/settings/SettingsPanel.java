@@ -108,6 +108,7 @@ public class SettingsPanel extends JPanel {
             String selected = (String) themeBox.getSelectedItem();
             userRepo.setTheme(login, selected);
             assert selected != null;
+            AppLogger.admin("Settings: theme changed to " + selected + " (restart)");
             UIStyle.applyTheme(selected);
             StyledDialog.show(SwingUtilities.getWindowAncestor(this), "Theme applied! Program would restart to apply changes!");
             System.exit(0);
@@ -237,7 +238,10 @@ public class SettingsPanel extends JPanel {
         JCheckBox saveLoginBox = new JCheckBox("Save data after first login");
         UIStyle.styleCheckbox(saveLoginBox);
         saveLoginBox.setSelected(userRepo.isSaveLoginEnabled(login));
-        saveLoginBox.addActionListener(e -> userRepo.setSaveLogin(login, saveLoginBox.isSelected()));
+        saveLoginBox.addActionListener(e -> {
+            userRepo.setSaveLogin(login, saveLoginBox.isSelected());
+            AppLogger.info("Settings: save login set to " + saveLoginBox.isSelected());
+        });
         saveLoginBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JCheckBox trayBox = new JCheckBox("Minimize to tray on close");
@@ -347,7 +351,7 @@ public class SettingsPanel extends JPanel {
         try {
             return future.get();
         } catch (Exception e) {
-            AppLogger.error(e.getMessage());
+            AppLogger.error("Settings: file chooser error - " + e.getMessage());
             return null;
         }
     }
@@ -384,9 +388,11 @@ public class SettingsPanel extends JPanel {
                         ImageIcon scaledIcon = new ImageIcon(scaledImageAvatar);
                         mainFrame.updateAvatarImage(scaledIcon);
                     }
+                    AppLogger.info("Settings: avatar updated for " + login);
                 }
             }
         } catch (IOException ex) {
+            AppLogger.error("Settings: failed to load image - " + ex.getMessage());
             StyledDialog.show(SwingUtilities.getWindowAncestor(this), "Failed to load image.");
         }
     }
@@ -399,9 +405,11 @@ public class SettingsPanel extends JPanel {
                 stmt.setString(2, login);
                 stmt.executeUpdate();
                 StyledDialog.show(SwingUtilities.getWindowAncestor(this), "Nickname updated successfully!", "Success");
+                AppLogger.admin("Settings: nickname changed to '" + nickname + "' for " + login);
                 achievementService.complete(login, "change_nickname");
                 mainFrame.updateNickName(userRepo.getNickname(login));
             } catch (Exception ex) {
+                AppLogger.error("Settings: failed to update nickname - " + ex.getMessage());
                 StyledDialog.show(SwingUtilities.getWindowAncestor(this), "Failed to update nickname.");
             }
         }
@@ -435,21 +443,25 @@ public class SettingsPanel extends JPanel {
             String confirmPass = new String(confirmPassword.getPassword());
 
             if (!newPass.equals(confirmPass)) {
+                AppLogger.info("Settings: password change rejected - passwords do not match");
                 StyledDialog.show(SwingUtilities.getWindowAncestor(this), "New passwords do not match.");
                 return;
             }
 
             if (!userRepo.checkPassword(login, current)) {
+                AppLogger.info("Settings: password change rejected - incorrect current password");
                 StyledDialog.show(SwingUtilities.getWindowAncestor(this), "Current password is incorrect.");
                 return;
             }
 
             userRepo.updatePassword(login, newPass);
             StyledDialog.show(SwingUtilities.getWindowAncestor(this), "Password changed successfully!", "Success");
+            AppLogger.admin("Settings: password changed for " + login);
         }
     }
 
     private void logout() {
+        AppLogger.admin("Settings: logout clicked for " + login);
         SwingUtilities.invokeLater(() -> {
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
             frame.dispose();
@@ -463,6 +475,7 @@ public class SettingsPanel extends JPanel {
             LocalDateTime dt = LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             return dt.format(DateTimeFormatter.ofPattern("HH:mm:ss / dd.MM.yyyy"));
         } catch (Exception e) {
+            AppLogger.info("Settings: could not reformat date '" + dateStr + "' - " + e.getMessage());
             return dateStr;
         }
     }

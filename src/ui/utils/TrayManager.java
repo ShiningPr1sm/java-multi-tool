@@ -30,6 +30,7 @@ public class TrayManager {
         swingMenu.addPopupMenuListener(new PopupMenuListener() {
             @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                // TODO document why this method is empty
             }
             @Override
             public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
@@ -44,13 +45,16 @@ public class TrayManager {
             }
         });
 
-        addMenuItem("Open MultiTool", "/icons/menu/home_icon.png", e -> showFrame());
+        addMenuItem("  Open MultiTool", "/icons/menu/home_icon.png", e -> showFrame());
         swingMenu.add(createSeparator());
-        addMenuItem("Media Downloader", "/icons/menu/download_icon.png", e -> { showFrame(); frame.openTab("Media Downloader"); });
-        addMenuItem("Birthday Tracker", "/icons/menu/bdays_icon.png", e -> { showFrame(); frame.openTab("Birthday Tracker"); });
-        addMenuItem("Settings", "/icons/menu/settings_icon.png", e -> { showFrame(); frame.openSettings(); });
+        addMenuItem("  Media Downloader", "/icons/menu/download_icon.png", e -> { showFrame(); frame.openTab("Media Downloader"); });
+        addMenuItem("  Birthday Tracker", "/icons/menu/bdays_icon.png", e -> { showFrame(); frame.openTab("Birthday Tracker"); });
+        addMenuItem("  Settings", "/icons/menu/settings_icon.png", e -> { showFrame(); frame.openSettings(); });
         swingMenu.add(createSeparator());
-        addMenuItem("Exit", "/icons/menu/exit_icon.png", e -> System.exit(0));
+        addMenuItem("  Exit", "/icons/menu/exit_icon.png", e -> {
+            AppLogger.info("Tray: exit clicked, closing application.");
+            System.exit(0);
+        });
     }
 
     private void addMenuItem(String text, String iconPath, ActionListener action) {
@@ -71,9 +75,9 @@ public class TrayManager {
             AppLogger.error("TrayManager: failed to load icon: " + e.getMessage());
         }
 
-        item.setIconTextGap(12);
+        item.setIconTextGap(1);
         item.setHorizontalAlignment(SwingConstants.LEFT);
-        item.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 20));
+        item.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 20));
         item.addActionListener(action);
         item.addMouseListener(new MouseAdapter() {
             @Override
@@ -114,6 +118,7 @@ public class TrayManager {
                 }
             });
             tray.add(trayIcon);
+            AppLogger.info("System tray initialized.");
         } catch (Exception e) { AppLogger.error("TrayManager: failed to setup tray: " + e.getMessage()); }
     }
 
@@ -138,6 +143,7 @@ public class TrayManager {
 
     private void showFrame() {
         swingMenu.setVisible(false);
+        AppLogger.info("Tray: showing main window.");
         frame.setVisible(true);
         frame.setExtendedState(JFrame.NORMAL);
         frame.toFront();

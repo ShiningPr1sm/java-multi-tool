@@ -1,6 +1,7 @@
 package ui.settings;
 
 import ui.UIStyle;
+import util.AppLogger;
 import util.ConfigManager;
 
 import javax.swing.*;
@@ -64,8 +65,10 @@ public class AdvancedSettingsDialog extends JDialog {
             JCheckBox cb = new JCheckBox();
             UIStyle.styleCheckbox(cb);
             cb.setSelected(value);
-            cb.addActionListener(e ->
-                ConfigManager.saveProperty(def.key(), String.valueOf(cb.isSelected())));
+            cb.addActionListener(e -> {
+                ConfigManager.saveProperty(def.key(), String.valueOf(cb.isSelected()));
+                AppLogger.info("Settings: '" + def.label() + "' set to " + cb.isSelected());
+            });
             content.add(cb, c);
 
             c.anchor = GridBagConstraints.WEST;
