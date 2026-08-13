@@ -1,5 +1,6 @@
 package ui.notifications;
 
+import db.BirthdayRecord;
 import db.NotificationRecord;
 import db.BDaysRepository;
 import db.DatabaseProvider;
@@ -15,7 +16,9 @@ import java.util.List;
 public class NotificationsPanel extends JPanel {
     private final NotificationService notificationService;
     private final HeaderPanel headerPanel;
-    private JPanel listPanel;
+    private final JPanel listPanel;
+    private static final String FONT_LABEL = "Segoe UI";
+    private static final String UNKNOWN_LABEL = "Unknown";
 
     public NotificationsPanel(NotificationService notificationService, HeaderPanel headerPanel) {
         this.notificationService = notificationService;
@@ -25,7 +28,7 @@ public class NotificationsPanel extends JPanel {
 
         JLabel title = new JLabel("Notifications", SwingConstants.CENTER);
         title.setForeground(UIStyle.TEXT_COLOR);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        title.setFont(new Font(FONT_LABEL, Font.BOLD, 28));
         title.setBorder(BorderFactory.createEmptyBorder(30, 0, 10, 0));
         add(title, BorderLayout.NORTH);
 
@@ -50,7 +53,7 @@ public class NotificationsPanel extends JPanel {
         if (notifications.isEmpty()) {
             JLabel empty = new JLabel("No new notifications", SwingConstants.CENTER);
             empty.setForeground(Color.GRAY);
-            empty.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            empty.setFont(new Font(FONT_LABEL, Font.PLAIN, 16));
             empty.setAlignmentX(Component.CENTER_ALIGNMENT);
             listPanel.add(empty);
         } else {
@@ -86,7 +89,7 @@ public class NotificationsPanel extends JPanel {
 
         JLabel textLabel = new JLabel(text);
         textLabel.setForeground(UIStyle.TEXT_COLOR);
-        textLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        textLabel.setFont(new Font(FONT_LABEL, Font.PLAIN, 14));
 
         JButton dismissBtn = new JButton("Dismiss");
         UIStyle.styleButton(dismissBtn);
@@ -101,18 +104,18 @@ public class NotificationsPanel extends JPanel {
     }
 
     private String resolveName(NotificationRecord rec) {
-        if (!"bday_reminder".equals(rec.getType())) return "Unknown";
+        if (!"bday_reminder".equals(rec.getType())) return UNKNOWN_LABEL;
         try {
             BDaysRepository repo = DatabaseProvider.getBDaysRepository();
             var all = repo.getAllBirthdays();
             return all.stream()
                     .filter(b -> b.getId() == rec.getReferenceId())
-                    .map(b -> b.getName())
+                    .map(BirthdayRecord::getName)
                     .findFirst()
-                    .orElse("Unknown");
+                    .orElse(UNKNOWN_LABEL);
         } catch (Exception e) {
             AppLogger.error("NotificationsPanel: failed to resolve name: " + e.getMessage());
-            return "Unknown";
+            return UNKNOWN_LABEL;
         }
     }
 }
