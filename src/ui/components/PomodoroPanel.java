@@ -2,6 +2,7 @@ package ui.components;
 
 import ui.StyledDialog;
 import ui.UIStyle;
+import util.AppLogger;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -145,11 +146,13 @@ public class PomodoroPanel extends JPanel {
             countdownTimer.stop();
             running = false;
             startBtn.setText("Resume");
+            AppLogger.info("Pomodoro paused");
         } else {
             boolean isFirstStart = "Start".equals(startBtn.getText());
             countdownTimer.start();
             running = true;
             startBtn.setText("Pause");
+            AppLogger.info("Pomodoro " + (isFirstStart ? "started" : "resumed"));
             if (isFirstStart && onTimerStart != null) {
                 onTimerStart.run();
             }
@@ -204,6 +207,7 @@ public class PomodoroPanel extends JPanel {
         phaseLabel.setText(phaseName);
         phaseLabel.setForeground(phase == WORK ? UIStyle.ACCENT_COLOR : new Color(0x2ECC71));
 
+        AppLogger.info("Pomodoro phase completed, next: " + phaseName);
         resetTimer();
         StyledDialog.show(SwingUtilities.getWindowAncestor(this), "Pomodoro", phaseName + " phase started!");
     }

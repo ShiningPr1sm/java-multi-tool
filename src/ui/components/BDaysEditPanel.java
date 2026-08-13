@@ -52,6 +52,7 @@ public class BDaysEditPanel extends JPanel {
                 String dateStr = model.getValueAt(row, 2).toString();
                 try {
                     repo.updateBirthday(id, name, bdaysService.uiToDb(dateStr));
+                    AppLogger.info("Birthday updated: " + name + " (" + dateStr + ")");
                     notifyDataChanged();
                 } catch (Exception ex) {
                     AppLogger.error("BDaysEditPanel: invalid birthday format: " + ex.getMessage());
@@ -139,6 +140,7 @@ public class BDaysEditPanel extends JPanel {
                     return;
                 }
                 repo.addBirthday(name, bdaysService.uiToDb(inputDate));
+                AppLogger.info("Birthday added: " + name + " (" + inputDate + ")");
 
                 achievementService.complete(login, "real_friend");
                 refreshTable();
@@ -153,7 +155,9 @@ public class BDaysEditPanel extends JPanel {
             int sel = table.getSelectedRow();
             if (sel >= 0) {
                 int id = (int) model.getValueAt(sel, 0);
+                String name = (String) model.getValueAt(sel, 1);
                 repo.removeBirthday(id);
+                AppLogger.info("Birthday removed: " + name);
                 refreshTable();
                 notifyDataChanged();
             }

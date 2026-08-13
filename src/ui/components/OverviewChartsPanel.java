@@ -3,6 +3,7 @@ package ui.components;
 import db.StatResult;
 import db.WorkflowRepository;
 import ui.UIStyle;
+import util.AppLogger;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -150,7 +151,9 @@ public class OverviewChartsPanel extends JPanel {
         paintAll(img.getGraphics());
         try {
             ImageIO.write(img, ext, file);
+            AppLogger.info("Overview saved to " + file.getAbsolutePath());
         } catch (Exception ex) {
+            AppLogger.error("Failed to save overview image: " + ex.getMessage());
             JOptionPane.showMessageDialog(this, "Failed to save image:\n" + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }

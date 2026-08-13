@@ -55,6 +55,7 @@ public class TaskTrackerPanel extends JPanel {
         addBtn.addActionListener(e -> {
             if (!nameInp.getText().trim().isEmpty()) {
                 workflowRepo.addTask(nameInp.getText().trim(), descInp.getText().trim());
+                AppLogger.info("Task added: " + nameInp.getText().trim());
                 nameInp.setText("");
                 descInp.setText("");
                 loadTasksFromDB();

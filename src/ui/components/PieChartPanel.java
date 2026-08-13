@@ -1,6 +1,7 @@
 package ui.components;
 
 import ui.UIStyle;
+import util.AppLogger;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class PieChartPanel extends JPanel {
         try {
             updateLegend();
         } catch (Exception e) {
-            e.printStackTrace();
+            AppLogger.error("PieChartPanel: failed to update legend - " + e.getMessage());
         }
         chartCanvas.repaint();
     }

@@ -59,7 +59,9 @@ public class AppsEditPanel extends JPanel {
         model.addTableModelListener(e -> {
             if (e.getType() == javax.swing.event.TableModelEvent.UPDATE) {
                 int row = e.getFirstRow();
-                workflowRepo.updateAppName((int) model.getValueAt(row, 2), (String) model.getValueAt(row, 1));
+                String newName = (String) model.getValueAt(row, 1);
+                workflowRepo.updateAppName((int) model.getValueAt(row, 2), newName);
+                AppLogger.info("Tracked app renamed to: " + newName);
                 onDataChanged.run();
             }
         });
@@ -70,7 +72,9 @@ public class AppsEditPanel extends JPanel {
         deleteBtn.addActionListener(e -> {
             int row = editTable.getSelectedRow();
             if (row != -1) {
+                String name = (String) model.getValueAt(row, 1);
                 workflowRepo.deleteTrackedAppFromDB((int) model.getValueAt(row, 2));
+                AppLogger.info("Tracked app deleted: " + name);
                 model.removeRow(row);
                 onDataChanged.run();
             }

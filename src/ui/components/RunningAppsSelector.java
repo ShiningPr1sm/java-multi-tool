@@ -3,6 +3,7 @@ package ui.components;
 import db.WorkflowRepository;
 import service.RunningProcessService;
 import ui.UIStyle;
+import util.AppLogger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,6 +35,7 @@ public class RunningAppsSelector {
             String sel = list.getSelectedValue();
             if (sel != null) {
                 workflowRepo.addTrackedApp(runningProcessService.prettifyExeName(sel), sel);
+                AppLogger.info("Tracked app added from running processes: " + sel);
                 onAppAdded.run();
                 dialog.dispose();
             }

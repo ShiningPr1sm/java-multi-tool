@@ -3,6 +3,7 @@ package ui.components;
 import db.DatabaseProvider;
 import service.WorkflowService;
 import ui.UIStyle;
+import util.AppLogger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,6 +58,7 @@ public class TaskCard extends JPanel {
         delBtn.setForeground(Color.GRAY);
         delBtn.addActionListener(e -> {
             if (currentActiveId == id) return;
+            AppLogger.info("Task deleted: " + name);
             onDelete.run();
             onRefreshList.run();
         });

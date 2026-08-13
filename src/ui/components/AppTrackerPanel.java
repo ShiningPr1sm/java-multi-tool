@@ -3,6 +3,7 @@ package ui.components;
 import db.WorkflowRepository;
 import service.RunningProcessService;
 import ui.UIStyle;
+import util.AppLogger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,6 +53,7 @@ public class AppTrackerPanel extends JPanel {
             if (fd.getFile() != null) {
                 String name = fd.getFile();
                 workflowRepo.addTrackedApp(runningProcessService.prettifyExeName(name), name);
+                AppLogger.info("Tracked app added manually: " + name);
                 onDataChanged.run();
             }
         });
