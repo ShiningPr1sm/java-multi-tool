@@ -42,7 +42,7 @@ public class AchievementDefDao {
                 );
             """);
         } catch (SQLException e) {
-            AppLogger.log("Achievements initializeDatabase DB", e.getMessage());
+            AppLogger.error("Achievements initializeDatabase DB: " + e.getMessage());
         }
     }
 
@@ -71,7 +71,7 @@ public class AchievementDefDao {
             stmt.setInt(4, xpReward);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            AppLogger.log("Achievements DB", e.getMessage());
+            AppLogger.error("Achievements DB: " + e.getMessage());
         }
     }
 

@@ -6,6 +6,7 @@ import util.AppLogger;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class AchievementsPanel extends JPanel {
 
@@ -43,7 +44,9 @@ public class AchievementsPanel extends JPanel {
 
     private void loadData() {
         grid.removeAll();
-        for (AchievementService.AchievementData data : achievementService.loadUserAchievements(login)) {
+        List<AchievementService.AchievementData> achievements = achievementService.loadUserAchievements(login);
+        AppLogger.info("Achievements loaded for \"" + login + "\": " + achievements.size() + " achievements.");
+        for (AchievementService.AchievementData data : achievements) {
             String iconPath = "/icons/achievements/" + data.code + ".jpg";
             grid.add(createAchievementCard(
                     data.getDisplayTitle(),

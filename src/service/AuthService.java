@@ -39,6 +39,7 @@ public class AuthService {
                 currentRole = Role.USER;
             }
         } catch (Exception e) {
+            AppLogger.error("AuthService: failed to read rights file: " + e.getMessage());
             currentRole = Role.USER;
         }
     }

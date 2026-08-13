@@ -133,6 +133,7 @@ public class AchievementService {
         try {
             return repo().getConnection();
         } catch (Exception e) {
+            AppLogger.error("AchievementService: connection failed: " + e.getMessage());
             return null;
         }
     }

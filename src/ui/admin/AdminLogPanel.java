@@ -51,6 +51,7 @@ public class AdminLogPanel extends JPanel {
         try {
             doc.insertString(doc.getLength(), msg, styleFor(doc, msg));
         } catch (BadLocationException e) {
+            AppLogger.error("AdminLogPanel: failed to append log line: " + e.getMessage());
             textPane.setText(textPane.getText() + msg);
         }
     }
