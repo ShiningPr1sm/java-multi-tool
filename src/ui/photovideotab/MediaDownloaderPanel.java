@@ -134,6 +134,7 @@ public class MediaDownloaderPanel extends JPanel {
         }
         if (videoUrls.isEmpty()) {
             StyledDialog.show(SwingUtilities.windowForComponent(this), "No valid URLs found!");
+            AppLogger.info("Download aborted: no valid URLs found.");
             return;
         }
 
@@ -204,6 +205,7 @@ public class MediaDownloaderPanel extends JPanel {
         }
         if (videoUrls.isEmpty()) {
             StyledDialog.show(SwingUtilities.windowForComponent(this), "No valid URLs found!");
+            AppLogger.info("Thumbnail download aborted: no valid URLs found.");
             return;
         }
 

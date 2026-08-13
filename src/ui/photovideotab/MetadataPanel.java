@@ -247,6 +247,7 @@ public class MetadataPanel extends JPanel {
                     elaScoreLabel.setText(String.format("ELA Score: %.2f — %s", score, verdict));
                     elaPanel.setVisible(true);
                     centerPanel.revalidate();
+                    AppLogger.info("ELA analysis completed: score=" + score + ", " + verdict);
                 });
             } catch (Exception ex) {
                 AppLogger.error("ELA failed: " + ex.getMessage());
@@ -262,6 +263,7 @@ public class MetadataPanel extends JPanel {
         if (text == null || text.isBlank()) return;
         Toolkit.getDefaultToolkit().getSystemClipboard()
                 .setContents(new StringSelection(text), null);
+        AppLogger.info("Metadata copied to clipboard");
     }
 
     private void exportMetadata() {
@@ -291,6 +293,7 @@ public class MetadataPanel extends JPanel {
                 if (!ext.equals("txt")) target = new File(target.getAbsolutePath() + ".txt");
                 Files.writeString(target.toPath(), text);
             }
+            AppLogger.info("Metadata exported to " + target.getAbsolutePath());
         } catch (IOException ex) {
             AppLogger.error("Export failed: " + ex.getMessage());
         }
@@ -307,6 +310,7 @@ public class MetadataPanel extends JPanel {
         try {
             metadataService.saveWithoutExif(currentResult.getProcessedImage(), currentFile, target);
             currentFile = target;
+            AppLogger.info("EXIF stripped, saved to " + target.getAbsolutePath());
             processImage(target);
         } catch (IOException ex) {
             AppLogger.error("Strip EXIF failed: " + ex.getMessage());
@@ -333,6 +337,7 @@ public class MetadataPanel extends JPanel {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     Toolkit.getDefaultToolkit().getSystemClipboard()
                             .setContents(new StringSelection(hexStr), null);
+                    AppLogger.info("Color copied to clipboard: " + hexStr);
                 }
             });
 
