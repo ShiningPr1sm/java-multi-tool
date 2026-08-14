@@ -28,6 +28,7 @@ public class Launcher {
         });
 
         AppPaths.init();
+        AppLogger.init();
 
         AuthService authService = new AuthService();
         AchievementService achievementService = new AchievementService();

@@ -11,7 +11,7 @@ public class AppPaths {
     private static final String APP_DIR = SHINING_PR1SM + "/JavaMultiTool";
 
     public static final String COMMON_DIR = SHINING_PR1SM;
-    public static final String LOG_FILE = APP_DIR + "/app_history.log";
+    public static final String LOGS_DIR = APP_DIR + "/logs";
     public static final String RIGHTS_FILE = APP_DIR + "/rights.ini";
     public static final String CONFIG_FILE = APP_DIR + "/update.properties";
 

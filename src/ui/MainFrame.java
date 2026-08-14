@@ -135,6 +135,7 @@ public class MainFrame extends JFrame implements AchievementCallback {
         services.workflowService().startTracking();
 
         this.trayManager = new TrayManager(this);
+        ErrorToast.install(this);
 
         if (Boolean.parseBoolean(ConfigManager.loadProperty("birthdayReminders", "true"))) {
             services.notificationService().checkBirthdayReminders();
