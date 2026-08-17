@@ -1,6 +1,7 @@
 package ui;
 
 import util.AppLogger;
+import util.ConfigManager;
 
 import javax.swing.border.LineBorder;
 import javax.swing.*;
@@ -123,6 +124,7 @@ public class ErrorToast {
 
     public static void push(String logEntry) {
         SwingUtilities.invokeLater(() -> {
+            if (!Boolean.parseBoolean(ConfigManager.loadProperty("showNotifications", "true"))) return;
             if (instance == null) {
                 synchronized (pendingBeforeInstall) {
                     pendingBeforeInstall.addLast(logEntry);

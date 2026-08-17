@@ -1,6 +1,7 @@
 package service;
 
 import util.AppLogger;
+import util.ConfigManager;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -28,6 +29,7 @@ public class SystemInfoService {
     public void prepare() {
         if (isPrepared) return;
         isPrepared = true;
+        if (!ConfigManager.isInternetEnabled()) return;
 
         new Thread(() -> {
             try {

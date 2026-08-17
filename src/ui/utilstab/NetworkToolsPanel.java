@@ -2,6 +2,7 @@ package ui.utilstab;
 
 import ui.UIStyle;
 import util.AppLogger;
+import util.ConfigManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,6 +53,7 @@ public class NetworkToolsPanel extends JPanel {
         JButton checkBtn = new JButton("Check My Public IP");
         UIStyle.styleButton(checkBtn);
         checkBtn.addActionListener(clearOutputArea(e -> {
+            if (!ConfigManager.isInternetEnabled()) { appendOutput("Internet access is disabled in settings."); return; }
             appendOutput("Checking public IP...");
             new Thread(() -> {
                 try {
@@ -80,6 +82,7 @@ public class NetworkToolsPanel extends JPanel {
         JButton pingBtn = new JButton("Ping");
         UIStyle.styleButton(pingBtn);
         pingBtn.addActionListener(clearOutputArea(e -> {
+            if (!ConfigManager.isInternetEnabled()) { appendOutput("Internet access is disabled in settings."); return; }
             String host = hostField.getText().trim();
             int count = (int) countSpinner.getValue();
             appendOutput("Pinging " + host + " (" + count + " times)...");
@@ -146,6 +149,7 @@ public class NetworkToolsPanel extends JPanel {
         JButton checkBtn = new JButton("Check Port");
         UIStyle.styleButton(checkBtn);
         checkBtn.addActionListener(clearOutputArea(e -> {
+            if (!ConfigManager.isInternetEnabled()) { appendOutput("Internet access is disabled in settings."); return; }
             String host = hostField.getText().trim();
             int port = (int) portSpinner.getValue();
             appendOutput("Checking " + host + ":" + port + "...");
@@ -181,6 +185,7 @@ public class NetworkToolsPanel extends JPanel {
         JButton whoisBtn = new JButton("Whois");
         UIStyle.styleButton(whoisBtn);
         whoisBtn.addActionListener(clearOutputArea(e -> {
+            if (!ConfigManager.isInternetEnabled()) { appendOutput("Internet access is disabled in settings."); return; }
             String domain = domainField.getText().trim();
             appendOutput("Looking up whois for " + domain + "...");
             new Thread(() -> {

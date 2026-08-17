@@ -24,6 +24,10 @@ public class ConfigManager {
         return load().getProperty(key, defaultValue);
     }
 
+    public static boolean isInternetEnabled() {
+        return Boolean.parseBoolean(loadProperty("useInternet", "true"));
+    }
+
     public static void saveProperty(String key, String value) {
         Properties props = load();
         props.setProperty(key, value);

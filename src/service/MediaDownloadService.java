@@ -1,6 +1,7 @@
 package service;
 
 import util.AppLogger;
+import util.ConfigManager;
 
 import dev.shiningpr1sm.ConsoleProgressBar;
 
@@ -52,20 +53,24 @@ public class MediaDownloadService {
     }
 
     public void ensureToolsAvailable() throws IOException {
+        if (!ConfigManager.isInternetEnabled()) throw new IOException("Internet access is disabled in settings.");
         checkAndDownloadYTDLP();
         checkAndDownloadFFMPEG();
     }
 
     public void ensureYTDLPAvailable() throws IOException {
+        if (!ConfigManager.isInternetEnabled()) throw new IOException("Internet access is disabled in settings.");
         checkAndDownloadYTDLP();
     }
 
     public int downloadVideo(String videoUrl, String selectedFormat, String browser, File downloadFolder, ProgressCallback callback) throws IOException, InterruptedException {
+        if (!ConfigManager.isInternetEnabled()) throw new IOException("Internet access is disabled in settings.");
         List<String> command = buildDownloadCommand(videoUrl, selectedFormat, browser, downloadFolder);
         return executeProcess(command, callback);
     }
 
     public int downloadThumbnail(String videoUrl, String browser, File downloadFolder, ProgressCallback callback) throws IOException, InterruptedException {
+        if (!ConfigManager.isInternetEnabled()) throw new IOException("Internet access is disabled in settings.");
         List<String> command = buildThumbnailCommand(videoUrl, browser, downloadFolder);
         return executeProcess(command, callback);
     }

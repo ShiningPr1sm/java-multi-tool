@@ -15,7 +15,9 @@ public class AdvancedSettingsDialog extends JDialog {
     private static final List<SettingDef> SETTINGS = List.of(
             new SettingDef("Enable Auto-update", "autoUpdate", true),
             new SettingDef("Show Daily Quote", "dailyQuote", true),
-            new SettingDef("Birthday Reminders", "birthdayReminders", true)
+            new SettingDef("Birthday Reminders", "birthdayReminders", true),
+            new SettingDef("Use internet to download tools or get data", "useInternet", true),
+            new SettingDef("Send notification messages", "showNotifications", true)
     );
 
     public AdvancedSettingsDialog(Frame owner) {

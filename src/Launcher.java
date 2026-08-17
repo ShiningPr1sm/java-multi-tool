@@ -52,7 +52,8 @@ public class Launcher {
         AppLogger.info("Current version: " + currentVersion);
 
         if (!DEV_VERSION.equals(currentVersion)
-                && Boolean.parseBoolean(ConfigManager.loadProperty("autoUpdate", "true"))) {
+                && Boolean.parseBoolean(ConfigManager.loadProperty("autoUpdate", "true"))
+                && ConfigManager.isInternetEnabled()) {
             String skippedVersion = ConfigManager.loadSkippedVersion();
 
             UpdateManager updateManager = new UpdateManager();

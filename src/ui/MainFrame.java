@@ -424,6 +424,10 @@ public class MainFrame extends JFrame implements AchievementCallback {
     }
 
     private void fetchActualVersion() {
+        if (!util.ConfigManager.isInternetEnabled()) {
+            actualVerLabel.setText("Actual version: unavailable");
+            return;
+        }
         new SwingWorker<String, Void>() {
             @Override
             protected String doInBackground() {
