@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea for this project
 title: "[FEAT] "
-labels: Feature
+labels: feature
 assignees: ShiningPr1sm
 
 ---
