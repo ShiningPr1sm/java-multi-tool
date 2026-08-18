@@ -235,24 +235,6 @@ public class SettingsPanel extends JPanel {
         sysUptimeLabel.setForeground(Color.LIGHT_GRAY);
         sysUptimeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JCheckBox saveLoginBox = new JCheckBox("Save data after first login");
-        UIStyle.styleCheckbox(saveLoginBox);
-        saveLoginBox.setSelected(userRepo.isSaveLoginEnabled(login));
-        saveLoginBox.addActionListener(e -> {
-            userRepo.setSaveLogin(login, saveLoginBox.isSelected());
-            AppLogger.info("Settings: save login set to " + saveLoginBox.isSelected());
-        });
-        saveLoginBox.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JCheckBox trayBox = new JCheckBox("Minimize to tray on close");
-        UIStyle.styleCheckbox(trayBox);
-        trayBox.setSelected(userRepo.isCloseToTrayEnabled(login));
-        trayBox.setAlignmentX(Component.LEFT_ALIGNMENT);
-        trayBox.addActionListener(e -> {
-            userRepo.setCloseToTray(login, trayBox.isSelected());
-            AppLogger.info("Settings: Close to tray set to " + trayBox.isSelected());
-        });
-
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         logoutBtn.addActionListener(e -> logout());
@@ -283,10 +265,6 @@ public class SettingsPanel extends JPanel {
         infoPanel.add(Box.createVerticalStrut(5));
         infoPanel.add(sysUptimeLabel);
         infoPanel.add(Box.createVerticalStrut(10));
-        infoPanel.add(saveLoginBox);
-        infoPanel.add(Box.createVerticalStrut(2));
-        infoPanel.add(trayBox);
-        infoPanel.add(Box.createVerticalStrut(10));
         infoPanel.add(logoutBtn);
 
         JPanel content = new JPanel();
@@ -305,7 +283,7 @@ public class SettingsPanel extends JPanel {
         JButton advancedBtn = new JButton("Advanced Settings");
         UIStyle.styleButton(advancedBtn);
         advancedBtn.addActionListener(e ->
-                new AdvancedSettingsDialog((Frame) SwingUtilities.getWindowAncestor(this)).setVisible(true));
+                new AdvancedSettingsDialog((Frame) SwingUtilities.getWindowAncestor(this), login).setVisible(true));
         bottomBar.add(advancedBtn);
 
         add(scrollPane, BorderLayout.CENTER);

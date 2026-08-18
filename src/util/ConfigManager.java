@@ -1,5 +1,6 @@
 package util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +27,52 @@ public class ConfigManager {
 
     public static boolean isInternetEnabled() {
         return Boolean.parseBoolean(loadProperty("useInternet", "true"));
+    }
+
+    private static final String REG_KEY = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    private static final String APP_REG_NAME = "JavaMultiTool";
+
+    public static boolean isStartupEnabled() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("reg", "query", REG_KEY, "/v", APP_REG_NAME);
+            pb.redirectErrorStream(true);
+            Process p = pb.start();
+            String output = new String(p.getInputStream().readAllBytes());
+            return p.waitFor() == 0 && output.contains(APP_REG_NAME);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static void setStartup(boolean enabled) {
+        try {
+            if (enabled) {
+                String jarPath = getJarPath();
+                if (jarPath == null) {
+                    AppLogger.error("ConfigManager: cannot determine JAR path for startup");
+                    return;
+                }
+                new ProcessBuilder("reg", "add", REG_KEY, "/v", APP_REG_NAME,
+                        "/t", "REG_SZ", "/d", "javaw -jar \"" + jarPath + "\"", "/f")
+                        .start().waitFor();
+                AppLogger.info("ConfigManager: startup enabled, path=" + jarPath);
+            } else {
+                new ProcessBuilder("reg", "delete", REG_KEY, "/v", APP_REG_NAME, "/f")
+                        .start().waitFor();
+                AppLogger.info("ConfigManager: startup disabled");
+            }
+        } catch (Exception e) {
+            AppLogger.error("ConfigManager: failed to set startup: " + e.getMessage());
+        }
+    }
+
+    private static String getJarPath() {
+        try {
+            return new File(ConfigManager.class.getProtectionDomain()
+                    .getCodeSource().getLocation().toURI()).getAbsolutePath();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static void saveProperty(String key, String value) {
