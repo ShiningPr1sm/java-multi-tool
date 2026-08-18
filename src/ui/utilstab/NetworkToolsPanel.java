@@ -37,7 +37,9 @@ public class NetworkToolsPanel extends JPanel {
         ));
 
         add(tabs, BorderLayout.NORTH);
-        add(new JScrollPane(outputArea), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(outputArea);
+        UIStyle.styleScrollBar(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     private ActionListener clearOutputArea(ActionListener action) {
