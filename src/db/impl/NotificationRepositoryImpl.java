@@ -44,7 +44,6 @@ public class NotificationRepositoryImpl implements NotificationRepository {
                AND reference_id = ?
                AND days_before = ?
                AND notified_at = ?
-               AND dismissed = 0
             """;
         try (Connection conn = getConnection();
              PreparedStatement st = conn.prepareStatement(sql)) {
