@@ -2,17 +2,9 @@
 name: Bug report
 about: Create a report to help us improve
 title: "[BUG] "
-labels: bug
+labels: bug, Feature
 assignees: ShiningPr1sm
 
----
-
----
-name: Bug report
-about: Create a report to help us improve
-title: "[BUG] "
-labels: bug
-assignees: ''
 ---
 
 **Describe the bug**
@@ -21,8 +13,8 @@ A clear and concise description of what the bug is.
 **To Reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
+2. Click on '...'
+3. Scroll down to '...'
 4. See error
 
 **Expected behavior**
@@ -32,9 +24,9 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Environment (please complete the following information):**
- - OS: [e.g. Windows 11, macOS 14, Ubuntu 24.04]
- - Java version: [e.g. Java 21, Java 22 — run `java -version`]
- - JavaMultiTool version: [e.g. v5.1.0 — from Releases or the app's About panel]
+ - OS: [e.g. Windows 7/10/other, macOS 14, Ubuntu 24.04]
+ - Java version: [e.g. Java 21, Java 22 or higher — run `java -version`]
+ - JavaMultiTool version: [e.g. v0.1.5 — from Releases or the app's About panel]
  - Installation type: [e.g. .exe / .jar]
 
 **Log file / stack trace**
