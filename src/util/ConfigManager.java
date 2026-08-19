@@ -68,11 +68,32 @@ public class ConfigManager {
 
     private static String getJarPath() {
         try {
-            return new File(ConfigManager.class.getProtectionDomain()
-                    .getCodeSource().getLocation().toURI()).getAbsolutePath();
+            Path javaHome = Path.of(System.getProperty("java.home"));
+            Path appDir = javaHome.getParent();
+            if (appDir != null) {
+                Path cfgPath = appDir.resolve("JMT.cfg");
+                if (Files.exists(cfgPath)) {
+                    for (String line : Files.readAllLines(cfgPath)) {
+                        line = line.trim();
+                        if (line.startsWith("app.classpath=")) {
+                            String cp = line.substring("app.classpath=".length()).trim();
+                            cp = cp.replace("$APPDIR", appDir.toString());
+                            if (Files.exists(Path.of(cp))) return cp;
+                        }
+                    }
+                }
+            }
+            String javaClassPath = System.getProperty("java.class.path");
+            if (javaClassPath != null && !javaClassPath.isEmpty()) {
+                File f = new File(javaClassPath);
+                if (f.isFile() && javaClassPath.endsWith(".jar")) {
+                    return f.getAbsolutePath();
+                }
+            }
         } catch (Exception e) {
-            return null;
+            AppLogger.error("ConfigManager: cannot determine JAR path: " + e.getMessage());
         }
+        return null;
     }
 
     public static void saveProperty(String key, String value) {
