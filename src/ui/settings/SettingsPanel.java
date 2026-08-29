@@ -155,8 +155,8 @@ public class SettingsPanel extends JPanel {
         userInfoPanel.add(avatarBox);
         userInfoPanel.add(nicknameBox);
 
-        JButton publicIpBtn = new JButton("Public IP: ***.***.***.***");
-        publicIpBtn.setForeground(Color.WHITE);
+        JButton publicIpBtn = new JButton(" Public IP: ***.***.***.***");
+        publicIpBtn.setForeground(Color.LIGHT_GRAY);
         publicIpBtn.setFont(UIManager.getFont(FONT_LABEL));
         publicIpBtn.setContentAreaFilled(false);
         publicIpBtn.setBorderPainted(false);
@@ -167,22 +167,22 @@ public class SettingsPanel extends JPanel {
         publicIpBtn.addActionListener(e -> {
             if (publicIpBtn.getText().contains("***")) {
                 String ip = systemInfoService.getCachedPublicIP();
-                publicIpBtn.setText("Public IP: " + (ip != null ? ip : LOADING_LABEL));
+                publicIpBtn.setText(" Public IP: " + (ip != null ? ip : LOADING_LABEL));
             } else {
-                publicIpBtn.setText("Public IP: ***.***.***.***");
+                publicIpBtn.setText(" Public IP: ***.***.***.***");
             }
         });
 
-        JLabel localIpLabel = new JLabel(" Local IP: " + (systemInfoService.getCachedLocalIP() != null ? systemInfoService.getCachedLocalIP() : LOADING_LABEL));
-        localIpLabel.setForeground(Color.WHITE);
+        JLabel localIpLabel = new JLabel("  Local IP: " + (systemInfoService.getCachedLocalIP() != null ? systemInfoService.getCachedLocalIP() : LOADING_LABEL));
+        localIpLabel.setForeground(Color.LIGHT_GRAY);
         localIpLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel macLabel = new JLabel(" MAC Address: " + (systemInfoService.getCachedMac() != null ? systemInfoService.getCachedMac() : LOADING_LABEL));
+        JLabel macLabel = new JLabel("  MAC Address: " + (systemInfoService.getCachedMac() != null ? systemInfoService.getCachedMac() : LOADING_LABEL));
         macLabel.setForeground(Color.LIGHT_GRAY);
         macLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JButton gatewayBtn = new JButton("Gateway IP: ***.***.***.***");
-        gatewayBtn.setForeground(Color.WHITE);
+        JButton gatewayBtn = new JButton(" Gateway IP: ***.***.***.***");
+        gatewayBtn.setForeground(Color.LIGHT_GRAY);
         gatewayBtn.setFont(UIManager.getFont(FONT_LABEL));
         gatewayBtn.setContentAreaFilled(false);
         gatewayBtn.setBorderPainted(false);
@@ -193,14 +193,14 @@ public class SettingsPanel extends JPanel {
         gatewayBtn.addActionListener(e -> {
             if (gatewayBtn.getText().contains("***")) {
                 String gw = systemInfoService.getCachedGatewayIp();
-                gatewayBtn.setText("Gateway IP: " + (gw != null ? gw : LOADING_LABEL));
+                gatewayBtn.setText(" Gateway IP: " + (gw != null ? gw : LOADING_LABEL));
             } else {
-                gatewayBtn.setText("Gateway IP: ***.***.***.***");
+                gatewayBtn.setText(" Gateway IP: ***.***.***.***");
             }
         });
 
-        JButton dnsBtn = new JButton("DNS Servers: ***.***.***.***");
-        dnsBtn.setForeground(Color.WHITE);
+        JButton dnsBtn = new JButton(" DNS Servers: ***.***.***.***");
+        dnsBtn.setForeground(Color.LIGHT_GRAY);
         dnsBtn.setFont(UIManager.getFont(FONT_LABEL));
         dnsBtn.setContentAreaFilled(false);
         dnsBtn.setBorderPainted(false);
@@ -211,9 +211,9 @@ public class SettingsPanel extends JPanel {
         dnsBtn.addActionListener(e -> {
             if (dnsBtn.getText().contains("***")) {
                 String dns = systemInfoService.getCachedDnsServers();
-                dnsBtn.setText("DNS Servers: " + (dns != null ? dns : LOADING_LABEL));
+                dnsBtn.setText(" DNS Servers: " + (dns != null ? dns : LOADING_LABEL));
             } else {
-                dnsBtn.setText("DNS Servers: ***.***.***.***");
+                dnsBtn.setText(" DNS Servers: ***.***.***.***");
             }
         });
 
