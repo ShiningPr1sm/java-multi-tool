@@ -5,6 +5,7 @@ import ui.StyledDialog;
 import ui.UIStyle;
 import util.AppLogger;
 import util.FFmpegUtils;
+import util.JavaFxFileChooser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -104,32 +105,26 @@ public class ImageConverterPanel extends JPanel {
     }
 
     private void selectFiles() {
-        JFileChooser fc = new JFileChooser();
-        fc.setMultiSelectionEnabled(true);
-        javax.swing.filechooser.FileNameExtensionFilter filter =
-                new javax.swing.filechooser.FileNameExtensionFilter(
+        List<File> files = JavaFxFileChooser.openFiles("Select Images",
+                new javafx.stage.FileChooser.ExtensionFilter(
                         "Images (PNG, JPG, JPEG, BMP, WEBP, AVIF)",
-                        "png", "jpg", "jpeg", "bmp", "webp", "avif");
-        fc.setFileFilter(filter);
-        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            selectedFiles = List.of(fc.getSelectedFiles());
-            AppLogger.info("Converter: selected " + selectedFiles.size() + " file(s)");
-            log("Selected " + selectedFiles.size() + " file(s)");
-            convertBtn.setEnabled(outputDir != null && !selectedFiles.isEmpty());
-            selectBtn.setText("Select Images (" + selectedFiles.size() + ")");
-        }
+                        "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.webp", "*.avif"));
+        if (files == null || files.isEmpty()) return;
+        selectedFiles = files;
+        AppLogger.info("Converter: selected " + selectedFiles.size() + " file(s)");
+        log("Selected " + selectedFiles.size() + " file(s)");
+        convertBtn.setEnabled(outputDir != null);
+        selectBtn.setText("Select Images (" + selectedFiles.size() + ")");
     }
 
     private void chooseOutputDir() {
-        JFileChooser fc = new JFileChooser();
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            outputDir = fc.getSelectedFile();
-            outDirLabel.setText(outputDir.getName());
-            AppLogger.info("Converter: output dir - " + outputDir);
-            log("Output: " + outputDir);
-            convertBtn.setEnabled(selectedFiles != null && !selectedFiles.isEmpty());
-        }
+        File dir = JavaFxFileChooser.chooseDirectory("Choose Output Folder");
+        if (dir == null) return;
+        outputDir = dir;
+        outDirLabel.setText(outputDir.getName());
+        AppLogger.info("Converter: output dir - " + outputDir);
+        log("Output: " + outputDir);
+        convertBtn.setEnabled(selectedFiles != null && !selectedFiles.isEmpty());
     }
 
     private boolean ensureFfmpeg() {

@@ -4,10 +4,10 @@ import db.StatResult;
 import db.WorkflowRepository;
 import ui.UIStyle;
 import util.AppLogger;
+import util.JavaFxFileChooser;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -128,30 +128,31 @@ public class OverviewChartsPanel extends JPanel {
     };
 
     public void saveAsPng() {
-        JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle("Save Overview as Image");
-        fc.setSelectedFile(new File("overview.png"));
+        javafx.stage.FileChooser.ExtensionFilter[] filters =
+                new javafx.stage.FileChooser.ExtensionFilter[IMG_FORMATS.length];
+        for (int i = 0; i < IMG_FORMATS.length; i++) {
+            filters[i] = new javafx.stage.FileChooser.ExtensionFilter(IMG_FORMATS[i][0], "*." + IMG_FORMATS[i][1]);
+        }
 
+        File file = JavaFxFileChooser.saveFile("Save Overview as Image", "overview.png", filters);
+        if (file == null) return;
+
+        String name = file.getName().toLowerCase();
+        String ext = "png";
         for (String[] fmt : IMG_FORMATS) {
-            fc.addChoosableFileFilter(new FileNameExtensionFilter(fmt[0], fmt[1]));
+            if (name.endsWith("." + fmt[1])) {
+                ext = fmt[1];
+                break;
+            }
         }
-        fc.setFileFilter(fc.getChoosableFileFilters()[1]);
-
-        if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
-
-        File file = fc.getSelectedFile();
-        FileNameExtensionFilter filter = (FileNameExtensionFilter) fc.getFileFilter();
-        String ext = filter.getExtensions()[0];
-
-        if (!file.getName().toLowerCase().endsWith("." + ext)) {
-            file = new File(file.getAbsolutePath() + "." + ext);
-        }
+        String filePath = file.getAbsolutePath();
+        if (!name.contains(".")) filePath += "." + ext;
 
         BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
         paintAll(img.getGraphics());
         try {
-            ImageIO.write(img, ext, file);
-            AppLogger.info("Overview saved to " + file.getAbsolutePath());
+            ImageIO.write(img, ext, new File(filePath));
+            AppLogger.info("Overview saved to " + filePath);
         } catch (Exception ex) {
             AppLogger.error("Failed to save overview image: " + ex.getMessage());
             JOptionPane.showMessageDialog(this, "Failed to save image:\n" + ex.getMessage(),

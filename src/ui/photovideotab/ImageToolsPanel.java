@@ -19,6 +19,7 @@ public class ImageToolsPanel extends JPanel {
         tabs.addTab("  Metadata  ", new MetadataPanel(services, login));
         tabs.addTab("  Resizer  ", new ResizerPanel());
         tabs.addTab("  Converter  ", new ImageConverterPanel());
+        tabs.addTab("  Uniquify  ", new ImageUniquifyPanel());
 
         add(tabs, BorderLayout.CENTER);
     }

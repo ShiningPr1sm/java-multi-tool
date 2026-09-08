@@ -4,6 +4,7 @@ import service.ImageMetadataService;
 import service.Services;
 import ui.UIStyle;
 import util.AppLogger;
+import util.JavaFxFileChooser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -270,30 +271,26 @@ public class MetadataPanel extends JPanel {
         String text = infoArea.getText();
         if (text == null || text.isBlank() || currentResult == null) return;
 
-        JFileChooser fc = new JFileChooser();
-        fc.setSelectedFile(new File(currentFile != null ? currentFile.getName() + ".txt" : "metadata.txt"));
-        javax.swing.filechooser.FileNameExtensionFilter txtFilter =
-                new javax.swing.filechooser.FileNameExtensionFilter("Text file (*.txt)", "txt");
-        javax.swing.filechooser.FileNameExtensionFilter jsonFilter =
-                new javax.swing.filechooser.FileNameExtensionFilter("JSON file (*.json)", "json");
-        fc.addChoosableFileFilter(txtFilter);
-        fc.addChoosableFileFilter(jsonFilter);
-        fc.setFileFilter(txtFilter);
+        File file = JavaFxFileChooser.saveFile("Export Metadata",
+                currentFile != null ? currentFile.getName() + ".txt" : "metadata.txt",
+                new javafx.stage.FileChooser.ExtensionFilter("Text file (*.txt)", "*.txt"),
+                new javafx.stage.FileChooser.ExtensionFilter("JSON file (*.json)", "*.json"));
+        if (file == null) return;
 
-        if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
-
-        File target = fc.getSelectedFile();
-        String ext = target.getName().contains(".") ? target.getName().substring(target.getName().lastIndexOf('.') + 1).toLowerCase() : "";
+        String name = file.getName().toLowerCase();
+        boolean isJson = name.endsWith(".json");
+        String filePath = file.getAbsolutePath();
+        if (!name.contains(".")) {
+            filePath += isJson ? ".json" : ".txt";
+        }
 
         try {
-            if (ext.equals("json") || fc.getFileFilter() == jsonFilter) {
-                if (!ext.equals("json")) target = new File(target.getAbsolutePath() + ".json");
-                Files.writeString(target.toPath(), currentResult.getMetadataJson());
+            if (isJson) {
+                Files.writeString(new java.io.File(filePath).toPath(), currentResult.getMetadataJson());
             } else {
-                if (!ext.equals("txt")) target = new File(target.getAbsolutePath() + ".txt");
-                Files.writeString(target.toPath(), text);
+                Files.writeString(new java.io.File(filePath).toPath(), text);
             }
-            AppLogger.info("Metadata exported to " + target.getAbsolutePath());
+            AppLogger.info("Metadata exported to " + filePath);
         } catch (IOException ex) {
             AppLogger.error("Export failed: " + ex.getMessage());
         }
@@ -302,11 +299,9 @@ public class MetadataPanel extends JPanel {
     private void stripExif() {
         if (currentResult == null || currentFile == null) return;
 
-        JFileChooser fc = new JFileChooser();
-        fc.setSelectedFile(new File("cleaned_" + currentFile.getName()));
-        if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+        File target = JavaFxFileChooser.saveFile("Save Cleaned Image", "cleaned_" + currentFile.getName());
+        if (target == null) return;
 
-        File target = fc.getSelectedFile();
         try {
             metadataService.saveWithoutExif(currentResult.getProcessedImage(), currentFile, target);
             currentFile = target;

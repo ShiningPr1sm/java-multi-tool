@@ -10,6 +10,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import service.Services;
 import ui.UIStyle;
 import util.AppLogger;
+import util.JavaFxFileChooser;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -137,12 +138,13 @@ public class QRToolsPanel extends JPanel {
     }
 
     private void decodeQR() {
-        JFileChooser fc = new JFileChooser();
-        if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
+        java.io.File selectedFile = JavaFxFileChooser.openFile("Select QR Image",
+                new javafx.stage.FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.webp"));
+        if (selectedFile == null) return;
 
         new Thread(() -> {
             try {
-                BufferedImage original = ImageIO.read(fc.getSelectedFile());
+                BufferedImage original = ImageIO.read(selectedFile);
                 if (original == null) {
                     SwingUtilities.invokeLater(() -> decodeResult.setText("Invalid image"));
                     return;
@@ -161,7 +163,7 @@ public class QRToolsPanel extends JPanel {
                 SwingUtilities.invokeLater(() -> decodeResult.setText(
                         finalText != null ? finalText : "Failed to decode QR"));
                 if (finalText != null) {
-                    AppLogger.info("QR decoded from " + fc.getSelectedFile().getName());
+                    AppLogger.info("QR decoded from " + selectedFile.getName());
                 } else {
                     AppLogger.info("QR decoding failed (no result)");
                 }

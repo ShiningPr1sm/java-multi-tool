@@ -2,6 +2,7 @@ package ui.photovideotab;
 
 import ui.UIStyle;
 import util.AppLogger;
+import util.JavaFxFileChooser;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -112,31 +113,25 @@ public class ResizerPanel extends JPanel {
     }
 
     private void selectFiles() {
-        JFileChooser fc = new JFileChooser();
-        fc.setMultiSelectionEnabled(true);
-        javax.swing.filechooser.FileNameExtensionFilter filter =
-                new javax.swing.filechooser.FileNameExtensionFilter(
-                        "Images (PNG, JPG, JPEG, BMP, WEBP)", "png", "jpg", "jpeg", "bmp", "webp");
-        fc.setFileFilter(filter);
-        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            selectedFiles = List.of(fc.getSelectedFiles());
-            AppLogger.info("Resizer: selected " + selectedFiles.size() + " file(s)");
-            log("Selected " + selectedFiles.size() + " file(s)");
-            processBtn.setEnabled(outputDir != null && !selectedFiles.isEmpty());
-            selectBtn.setText("Select Images (" + selectedFiles.size() + ")");
-        }
+        List<File> files = JavaFxFileChooser.openFiles("Select Images",
+                new javafx.stage.FileChooser.ExtensionFilter(
+                        "Images (PNG, JPG, JPEG, BMP, WEBP)", "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.webp"));
+        if (files == null || files.isEmpty()) return;
+        selectedFiles = files;
+        AppLogger.info("Resizer: selected " + selectedFiles.size() + " file(s)");
+        log("Selected " + selectedFiles.size() + " file(s)");
+        processBtn.setEnabled(outputDir != null);
+        selectBtn.setText("Select Images (" + selectedFiles.size() + ")");
     }
 
     private void chooseOutputDir() {
-        JFileChooser fc = new JFileChooser();
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            outputDir = fc.getSelectedFile();
-            outDirLabel.setText(outputDir.getName());
-            AppLogger.info("Resizer: output dir - " + outputDir);
-            log("Output: " + outputDir);
-            processBtn.setEnabled(selectedFiles != null && !selectedFiles.isEmpty());
-        }
+        File dir = JavaFxFileChooser.chooseDirectory("Choose Output Folder");
+        if (dir == null) return;
+        outputDir = dir;
+        outDirLabel.setText(outputDir.getName());
+        AppLogger.info("Resizer: output dir - " + outputDir);
+        log("Output: " + outputDir);
+        processBtn.setEnabled(selectedFiles != null && !selectedFiles.isEmpty());
     }
 
     private void processAll() {

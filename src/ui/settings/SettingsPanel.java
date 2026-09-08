@@ -1,6 +1,5 @@
 package ui.settings;
 
-import javafx.application.Platform;
 import service.AchievementService;
 import service.Services;
 import service.SystemInfoService;
@@ -10,12 +9,9 @@ import ui.MainFrame;
 import ui.StyledDialog;
 import ui.UIStyle;
 import util.AppLogger;
+import util.JavaFxFileChooser;
 
-import javafx.geometry.Rectangle2D;
 import javafx.stage.FileChooser;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import java.util.concurrent.CompletableFuture;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -304,38 +300,8 @@ public class SettingsPanel extends JPanel {
         }
     }
 
-    private File chooseFile(FileChooser.ExtensionFilter... filters) {
-        CompletableFuture<File> future = new CompletableFuture<>();
-        Platform.runLater(() -> {
-            FileChooser chooser = new FileChooser();
-            chooser.setTitle("Choose an image");
-            if (filters.length > 0) {
-                chooser.getExtensionFilters().addAll(filters);
-            }
-
-            Stage stage = new Stage();
-            stage.setWidth(0);
-            stage.setHeight(0);
-            stage.setOpacity(0);
-            stage.setTitle("");
-            Rectangle2D screen = Screen.getPrimary().getVisualBounds();
-            stage.setX(screen.getWidth() / 2);
-            stage.setY(screen.getHeight() / 2);
-
-            File selected = chooser.showOpenDialog(stage);
-            stage.close();
-            future.complete(selected);
-        });
-        try {
-            return future.get();
-        } catch (Exception e) {
-            AppLogger.error("Settings: file chooser error - " + e.getMessage());
-            return null;
-        }
-    }
-
     private void chooseAvatar(MainFrame mainFrame, JLabel avatarLabel) {
-        File selected = chooseFile(
+        File selected = JavaFxFileChooser.openFile("Choose an image",
                 new FileChooser.ExtensionFilter(
                         "Images", "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.gif"
                 )
